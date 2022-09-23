@@ -55,6 +55,8 @@ import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import MazSwitch from 'maz-ui/components/MazSwitch';
 import ToggleCheckbox from '../../../components/ToggleCheckbox.vue';
+import { FormData } from '../types';
+import { useRegisterStore } from '../stores/register.store';
 
 interface RegisterFormProps {
   defaultCountryCode: CountryCode;
@@ -70,15 +72,17 @@ interface RegisterFormProps {
     uri: string;
     e164: string;
   };
-  formData: {
-    username: string;
-    password: string;
-    phoneNumber: string;
-    enableMFA: boolean;
-  };
+  formData: FormData;
 }
 
 export default defineComponent({
+  setup() {
+    const registerStore = useRegisterStore();
+
+    return {
+      registerStore,
+    };
+  },
   data: (): RegisterFormProps => ({
     defaultCountryCode: 'CO',
     isValid: false,
@@ -109,7 +113,7 @@ export default defineComponent({
   },
   methods: {
     onSubmit() {
-      console.log(this.formData);
+      this.registerStore.registerUser(this.formData);
     },
     onPhoneNumberUpdate(e: RegisterFormProps['phoneNumberDetails']) {
       this.phoneNumberDetails = e;

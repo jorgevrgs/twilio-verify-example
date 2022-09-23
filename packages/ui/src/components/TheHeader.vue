@@ -20,9 +20,9 @@
     >
     <RouterLink
       class="w-16 text-center py-2 hover:font-bold"
-      :class="isActive('Dashboard') ? 'underline underline-offset-8' : ''"
-      :to="{ name: 'Dashboard' }"
-      >Dashboard</RouterLink
+      :class="isActive('Profile') ? 'underline underline-offset-8' : ''"
+      :to="{ name: 'Profile' }"
+      >Profile</RouterLink
     >
   </header>
 </template>

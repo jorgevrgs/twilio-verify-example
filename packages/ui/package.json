@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "0.27.2",
     "libphonenumber-js": "1.10.13",
     "maz-ui": "3.0.4",
     "pinia": "2.0.22",

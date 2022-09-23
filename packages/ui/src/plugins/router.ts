@@ -25,9 +25,9 @@ const routes: RouterOptions['routes'] = [
         meta: { requiresAuth: false },
       },
       {
-        path: 'dashboard',
-        name: 'Dashboard',
-        component: () => import('@/pages/DashboardPage.vue'),
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/pages/ProfilePage.vue'),
         meta: { requiresAuth: true },
       },
     ],
