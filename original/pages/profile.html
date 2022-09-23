@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Profile</title>
+
+    <link rel="stylesheet" href="/styles/bulma.css" />
+    <link rel="stylesheet" href="/styles/default.css" />
+  </head>
+
+  <body>
+    <div class="main">
+      <div class="container" style="max-width: 760px">
+        <div style="text-align: right"><a href="/logout">logout</a></div>
+
+        <h2 class="is-size-3 mb-2">{{name}}, this is your personal profile</h2>
+
+        <div style="line-height: 2.2em">Session expires in: {{expiresIn}} minutes</div>
+
+        <div style="line-height: 2.2em">
+          <b>2FA Login via Push:</b> {{#pushIsEnabled}}
+          <span style="display: inline-block" class="icon has-text-success">
+            <i class="fas fa-check-square"></i>
+          </span>
+          {{/pushIsEnabled}} {{#pushIsDisabled}}
+          <span style="display: inline-block" class="icon has-text-danger">
+            <i class="fas fa-ban"></i>
+          </span>
+          {{/pushIsDisabled}}
+        </div>
+      </div>
+    </div>
+    <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+  </body>
+</html>
