@@ -11,3 +11,6 @@ quote_type = single
 
 [*.html]
 quote_type = double
+
+[*.md]
+trim_trailing_whitespace = false
