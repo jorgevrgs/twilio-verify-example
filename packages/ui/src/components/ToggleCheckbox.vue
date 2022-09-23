@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center">
     <label for="toogleButton" class="flex items-center cursor-pointer">
-      <div class="px-2">Toggle me</div>
+      <div class="px-2">{{ label }}</div>
       <!-- toggle -->
       <div class="relative">
         <input
