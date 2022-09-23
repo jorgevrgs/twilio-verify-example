@@ -54,8 +54,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, inject } from 'vue';
 import type { CountryCode } from 'libphonenumber-js';
+import { ToasterHandler } from 'maz-ui';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
@@ -84,6 +85,14 @@ interface RegisterFormProps {
 export default defineComponent({
   setup() {
     const registerStore = useRegisterStore();
+    const toast = inject<ToasterHandler>('toast');
+
+    if (registerStore.error) {
+      toast?.error(registerStore.error, {
+        position: 'bottom',
+        timeout: 1000,
+      });
+    }
 
     return {
       registerStore,
