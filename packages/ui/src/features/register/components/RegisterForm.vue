@@ -16,7 +16,7 @@
       id="password"
       label="Password"
       aria-label="Password"
-      autocomplete="password"
+      autocomplete="new-password"
       required
     />
 
@@ -29,6 +29,7 @@
       :default-country-code="defaultCountryCode"
       @update="onPhoneNumberUpdate"
       :success="phoneNumberDetails?.isValid"
+      autocomplete="tel"
     />
 
     <label class="flex flex-col">
@@ -41,7 +42,12 @@
       />
     </label>
 
-    <MazBtn type="submit" color="primary" :disabled="!isValid" class="self-end"
+    <MazBtn
+      type="submit"
+      color="primary"
+      :disabled="!isValid"
+      class="self-end"
+      :loading="registerStore.isLoading"
       >Submit</MazBtn
     >
   </form>
@@ -113,7 +119,14 @@ export default defineComponent({
   },
   methods: {
     onSubmit() {
-      this.registerStore.registerUser(this.formData);
+      this.registerStore.registerUser(this.formData).then(() => {
+        this.formData = {
+          username: '',
+          password: '',
+          phoneNumber: '',
+          enableMFA: false,
+        };
+      });
     },
     onPhoneNumberUpdate(e: RegisterFormProps['phoneNumberDetails']) {
       this.phoneNumberDetails = e;

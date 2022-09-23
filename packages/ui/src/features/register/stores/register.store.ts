@@ -11,7 +11,7 @@ export interface RegisterStore {
 export const useRegisterStore = defineStore('register', {
   state: (): RegisterStore => ({
     user: undefined,
-    isLoading: true,
+    isLoading: false,
     error: undefined,
   }),
   getters: {
@@ -27,7 +27,10 @@ export const useRegisterStore = defineStore('register', {
     },
   },
   actions: {
-    registerUser(formData: FormData) {
+    async registerUser(formData: FormData) {
+      this.isLoading = true;
+      this.error = undefined;
+
       httpClient
         .post<User>('/api/auth/register', formData)
         .then((res) => {
