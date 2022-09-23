@@ -45,7 +45,7 @@
     <MazBtn
       type="submit"
       color="primary"
-      :disabled="!isValid"
+      :disabled="!isValidForm"
       class="self-end"
       :loading="registerStore.isLoading"
       >Submit</MazBtn
@@ -66,7 +66,7 @@ import { useRegisterStore } from '../stores/register.store';
 
 interface RegisterFormProps {
   defaultCountryCode: CountryCode;
-  isValid: boolean;
+  isValidForm: boolean;
   phoneNumberDetails?: {
     isValid: false;
     countryCode: string;
@@ -91,7 +91,7 @@ export default defineComponent({
   },
   data: (): RegisterFormProps => ({
     defaultCountryCode: 'CO',
-    isValid: false,
+    isValidForm: false,
     phoneNumberDetails: {
       isValid: false,
       countryCode: 'CO',
@@ -118,14 +118,20 @@ export default defineComponent({
     MazBtn,
   },
   methods: {
+    resetForm() {
+      this.formData = {
+        username: '',
+        password: '',
+        phoneNumber: '',
+        enableMFA: false,
+      };
+
+      this.isValidForm = false;
+      this.phoneNumberDetails = undefined;
+    },
     onSubmit() {
       this.registerStore.registerUser(this.formData).then(() => {
-        this.formData = {
-          username: '',
-          password: '',
-          phoneNumber: '',
-          enableMFA: false,
-        };
+        this.resetForm();
       });
     },
     onPhoneNumberUpdate(e: RegisterFormProps['phoneNumberDetails']) {
@@ -135,7 +141,7 @@ export default defineComponent({
   watch: {
     formData: {
       handler() {
-        this.isValid =
+        this.isValidForm =
           Boolean(this.phoneNumberDetails?.isValid) &&
           this.formData.username.length > 0 &&
           this.formData.password.length > 0;
