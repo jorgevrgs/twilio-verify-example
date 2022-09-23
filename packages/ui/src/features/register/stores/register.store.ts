@@ -29,7 +29,7 @@ export const useRegisterStore = defineStore('register', {
   actions: {
     registerUser(formData: FormData) {
       httpClient
-        .post<User>('/api/v1/auth/register', formData)
+        .post<User>('/api/auth/register', formData)
         .then((res) => {
           this.user = res.data;
         })
