@@ -1,6 +1,6 @@
-import { join } from 'path';
 import AutoLoad, { AutoloadPluginOptions } from '@fastify/autoload';
 import { FastifyPluginAsync } from 'fastify';
+import { join } from 'path';
 
 export type AppOptions = {
   prefix: string;
@@ -15,7 +15,6 @@ const app: FastifyPluginAsync<AppOptions> = async (
   opts
 ): Promise<void> => {
   // Place here your custom code!
-  console.log({ opts });
 
   // Do not touch the following lines
 

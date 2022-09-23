@@ -1,15 +1,27 @@
+import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
 
 const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
-  fastify.post('/register', async function (request, reply) {
-    return {
-      id: '123',
-      username: 'test',
-      phoneNumber: '123',
-      isPhoneNumberVerified: false,
-      isMfaEnabled: false,
-    };
-  });
+  fastify.withTypeProvider<TypeBoxTypeProvider>().post(
+    '/register',
+    {
+      schema: {
+        body: Type.Object({
+          username: Type.String(),
+          password: Type.String({ minLength: 6 }),
+          phoneNumber: Type.String({ minLength: 10 }),
+          enableMFA: Type.Boolean({ default: true }),
+        }),
+      },
+    },
+    async function (request, reply) {
+      return request.twilioVerify.verifications.create({
+        to: request.body.phoneNumber,
+        channel: 'sms',
+      });
+    }
+  );
 };
 
 export default authRoute;
