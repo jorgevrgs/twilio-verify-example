@@ -16,5 +16,10 @@
          "type": "push",
          "sid": "YF03d8bab1ed8b76716500286214c7b29f"
       }
+   },
+   {
+      "id": "37327c14-55b2-4165-bb5f-9ab5e8c9565a",
+      "name": "Jorge",
+      "password": "$2b$10$XXA/5MZV7atrA7ID9t5FD.XRQ0dkLGEY5YmIFrinMuj9eDnMEngqy"
    }
 ]

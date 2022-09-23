@@ -3,6 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Profile</title>
 
@@ -17,7 +18,9 @@
 
         <h2 class="is-size-3 mb-2">{{name}}, this is your personal profile</h2>
 
-        <div style="line-height: 2.2em">Session expires in: {{expiresIn}} minutes</div>
+        <div style="line-height: 2.2em">
+          Session expires in: {{expiresIn}} minutes
+        </div>
 
         <div style="line-height: 2.2em">
           <b>2FA Login via Push:</b> {{#pushIsEnabled}}
@@ -32,6 +35,9 @@
         </div>
       </div>
     </div>
-    <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"
+    ></script>
   </body>
 </html>
