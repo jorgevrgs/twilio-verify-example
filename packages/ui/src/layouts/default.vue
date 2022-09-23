@@ -1,7 +1,9 @@
 <template>
-  <TheHeader />
-  <TheBody />
-  <TheFooter />
+  <div class="w-full md:max-w-xl md:mx-auto">
+    <TheHeader />
+    <TheBody />
+    <TheFooter />
+  </div>
 </template>
 
 <script lang="ts">
