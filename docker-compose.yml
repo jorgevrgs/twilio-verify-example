@@ -1,19 +1,22 @@
 version: '3.8'
 
 services:
-  api:
+  twilio_api:
     container_name: twilio_api
     image: twilio/api:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.api
     depends_on:
       - mongo
     env_file:
       - .env.docker
     environment:
-      API_FRONTEND_URL: ${API_FRONTEND_URL:-http://localhost:3000}
-      API_MONGO_URL: ${API_MONGO_URL:-mongodb://userusername:userpassword@mongo:27017/ruleOfThumb}
+      FRONTEND_URL: ${API_FRONTEND_URL:-http://twilio_ui:3000}
+      MONGO_URL: ${API_MONGO_URL:-mongodb://twilioUsername:twilioPassword@twilio_db:27017/twilioDatabase}
+      TWILIO_ACCOUNT_SID: ${API_TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${API_TWILIO_AUTH_TOKEN}
+      TWILIO_VERIFY_SERVICE_SID: ${API_TWILIO_VERIFY_SERVICE_SID}
     networks:
       - twilio-network
     ports:
@@ -23,18 +26,18 @@ services:
       - packages/api:/usr/src/app
       - /usr/src/app/node_modules
 
-  ui:
+  twilio_ui:
     container_name: twilio_ui
     image: twilio/ui:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.ui
     depends_on:
       - mongo
     env_file:
       - .env.docker
     environment:
-      UI_BACKEND_URL: ${UI_BACKEND_URL:-http://localhost:1337}
+      VITE_BACKEND_URL: ${UI_BACKEND_URL:-http://localhost:1337}
     networks:
       - twilio-network
     ports:
@@ -44,7 +47,7 @@ services:
       - packages/ui:/usr/src/app
       - /usr/src/app/node_modules
 
-  mongo:
+  twilio_db:
     container_name: twilio_db
     image: mongo:4.2.22
     restart: always
@@ -53,9 +56,9 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-adminuser}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-adminpassword}
-      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-twilio}
-      MONGO_INITDB_USERNAME: ${MONGO_INITDB_USERNAME:-userusername}
-      MONGO_INITDB_PASSWORD: ${MONGO_INITDB_PASSWORD:-userpassword}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-twilioDatabase}
+      MONGO_INITDB_USERNAME: ${MONGO_INITDB_USERNAME:-twilioUsername}
+      MONGO_INITDB_PASSWORD: ${MONGO_INITDB_PASSWORD:-twilioPassword}
     networks:
       - twilio-network
     ports:
