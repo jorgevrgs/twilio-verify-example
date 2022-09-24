@@ -1,47 +1,69 @@
+import type { AxiosResponse } from 'axios';
 import { defineStore } from 'pinia';
+import { computed, reactive, ref } from 'vue';
 import { httpClient } from '../../../utils/http-client';
-import { FormData, User } from '../types';
+import { ErrorResponse, FormData, User } from '../types';
 
-export interface RegisterStore {
-  user?: User;
-  isLoading: boolean;
-  error?: string;
-}
-
-export const useRegisterStore = defineStore('register', {
-  state: (): RegisterStore => ({
-    user: undefined,
-    isLoading: false,
-    error: undefined,
-  }),
-  getters: {
-    isAuthenticated(): boolean {
-      return Boolean(this.user);
+export const useRegisterStore = defineStore('register', () => {
+  const user = reactive<User>({
+    id: '',
+    username: '',
+    phoneNumber: '',
+    enableMFA: false,
+    isPhoneNumberVerified: false,
+    verification: {
+      sid: '',
+      status: '',
     },
-    nextStep(): string {
-      if (this.user?.isMfaEnabled && !this.user?.isPhoneNumberVerified) {
-        return 'verify-mfa';
-      }
+  });
 
-      return 'profile';
-    },
-  },
-  actions: {
-    async registerUser(formData: FormData) {
-      this.isLoading = true;
-      this.error = undefined;
+  const isLoading = ref(false);
+  const error = ref<string>();
 
-      httpClient
-        .post<User>('/api/auth/register', formData)
-        .then((res) => {
-          this.user = res.data;
-        })
-        .catch((err) => {
-          this.error = err.message;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-  },
+  const isAuthenticated = computed(() => !!user.id);
+  const nextStep = computed(() => {
+    if (!user.id) {
+      return 'register';
+    }
+
+    if (user.enableMFA && !user.isPhoneNumberVerified) {
+      return 'verify';
+    }
+
+    return 'dashboard';
+  });
+
+  async function registerUser(formData: FormData) {
+    isLoading.value = true;
+    error.value = undefined;
+
+    await httpClient
+      .post<User, AxiosResponse<User, ErrorResponse>, FormData>(
+        '/api/auth/register',
+        formData
+      )
+      .then((res) => {
+        Object.assign(user, res.data);
+      })
+      .catch((err) => {
+        error.value = err.response.data.message;
+      })
+      .finally(() => {
+        isLoading.value = false;
+      });
+  }
+
+  return {
+    // state
+    user,
+    isLoading,
+    error,
+
+    // getters
+    isAuthenticated,
+    nextStep,
+
+    // actions
+    registerUser,
+  };
 });

@@ -1,14 +1,16 @@
 <template>
-  <h1>Register</h1>
+  <section class="flex flex-col">
+    <h1>Register</h1>
 
-  <RegisterForm />
+    <RegisterForm />
 
-  <hr class="my-8" />
+    <hr class="my-8" />
 
-  <p class="text-center">
-    Already have an account?
-    <RouterLink :to="{ name: 'Login' }">Login</RouterLink>
-  </p>
+    <p class="text-center">
+      Already have an account?
+      <RouterLink :to="{ name: 'Login' }">Login</RouterLink>
+    </p>
+  </section>
 </template>
 
 <script lang="ts">
