@@ -9,7 +9,7 @@ import {
   VerifyCodeFormData,
 } from '../types';
 
-export const useAuthStore = defineStore('auth', () => {
+export const useAuthStore = defineStore('auth', function () {
   // State
   const user = reactive<User>({
     id: '',

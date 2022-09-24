@@ -1,5 +1,6 @@
 import DefaultLayout from '@/layouts/default.vue';
 import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
+import { useAuthStore } from '../features/auth/stores/register.store';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -41,9 +42,9 @@ export const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  const isAuthenticated = false;
+  const authStore = useAuthStore();
 
-  if (requiresAuth && !isAuthenticated) {
+  if (requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login' });
   } else {
     next();
