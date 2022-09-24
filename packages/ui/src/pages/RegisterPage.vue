@@ -3,13 +3,6 @@
     <h1>Register</h1>
 
     <RegisterForm />
-
-    <hr class="my-8" />
-
-    <p class="text-center">
-      Already have an account?
-      <RouterLink :to="{ name: 'Login' }">Login</RouterLink>
-    </p>
   </section>
 </template>
 

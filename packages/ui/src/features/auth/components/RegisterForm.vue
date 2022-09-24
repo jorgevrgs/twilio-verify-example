@@ -6,8 +6,9 @@ import MazInput from 'maz-ui/components/MazInput';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazSwitch from 'maz-ui/components/MazSwitch';
 import { computed, inject, reactive } from 'vue';
-import { useRegisterStore } from '../stores/register.store';
+import { useAuthStore } from '../stores/register.store';
 import { FormData } from '../types';
+import VerificationCheck from './VerificationCheck.vue';
 
 interface PhoneNumberDetails {
   isValid: false;
@@ -21,7 +22,7 @@ interface PhoneNumberDetails {
   e164: string;
 }
 
-const registerStore = useRegisterStore();
+const registerStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
 const defaultCountryCode: CountryCode = 'CO';
@@ -135,4 +136,13 @@ const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
       >Submit</MazBtn
     >
   </form>
+
+  <VerificationCheck />
+
+  <hr class="my-8" />
+
+  <p class="text-center">
+    Already have an account?
+    <RouterLink :to="{ name: 'Login' }">Login</RouterLink>
+  </p>
 </template>

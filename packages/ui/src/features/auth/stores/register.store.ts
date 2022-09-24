@@ -4,7 +4,7 @@ import { computed, reactive, ref } from 'vue';
 import { httpClient } from '../../../utils/http-client';
 import { ErrorResponse, FormData, User } from '../types';
 
-export const useRegisterStore = defineStore('register', () => {
+export const useAuthStore = defineStore('auth', () => {
   const user = reactive<User>({
     id: '',
     username: '',
@@ -44,6 +44,7 @@ export const useRegisterStore = defineStore('register', () => {
       )
       .then((res) => {
         Object.assign(user, res.data);
+        localStorage.setItem('user', JSON.stringify(res.data));
       })
       .catch((err) => {
         error.value = err.response.data.message;
