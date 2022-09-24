@@ -1,7 +1,7 @@
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
-import { omit } from 'lodash-es';
+import omit from 'lodash.omit';
 
 const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.withTypeProvider<TypeBoxTypeProvider>().post(
