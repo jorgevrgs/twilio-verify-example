@@ -16,10 +16,44 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       },
     },
     async function (request, reply) {
-      return request.twilioVerify.verifications.create({
+      const existingUser = await request.db
+        ?.collection('users')
+        .findOne({ username: request.body.username });
+
+      if (existingUser) {
+        throw reply.conflict('Username already exists');
+      }
+
+      const result = await request.twilioVerify.verifications.create({
         to: request.body.phoneNumber,
         channel: 'sms',
       });
+
+      const hashedPassword = await request.helpers.hashPassword(
+        request.body.password
+      );
+
+      const verification = {
+        sid: result.sid,
+        status: result.status,
+      };
+
+      // Create user in database
+      const newUser = await request.db?.collection('users').insertOne({
+        username: request.body.username,
+        password: hashedPassword,
+        phoneNumber: request.body.phoneNumber,
+        enableMFA: request.body.enableMFA,
+        verification,
+      });
+
+      reply.status(201);
+
+      return {
+        id: newUser?.insertedId,
+        verification,
+        ...request.body,
+      };
     }
   );
 };

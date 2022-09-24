@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import twilio, { Twilio } from 'twilio';
-import { ServiceContext } from 'twilio/lib/rest/verify/v2/service';
+import type { ServiceContext } from 'twilio/lib/rest/verify/v2/service';
 
 declare global {
   namespace NodeJS {
