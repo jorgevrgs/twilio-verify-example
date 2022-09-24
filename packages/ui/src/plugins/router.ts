@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
 import DefaultLayout from '@/layouts/default.vue';
+import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
 
 const routes: RouterOptions['routes'] = [
   {

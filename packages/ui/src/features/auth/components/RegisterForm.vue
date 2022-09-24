@@ -5,9 +5,9 @@ import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazSwitch from 'maz-ui/components/MazSwitch';
-import { computed, inject, reactive } from 'vue';
+import { computed, inject, onMounted, reactive } from 'vue';
 import { useAuthStore } from '../stores/register.store';
-import { FormData } from '../types';
+import { RegisterFormData, User } from '../types';
 import VerificationCheck from './VerificationCheck.vue';
 
 interface PhoneNumberDetails {
@@ -39,7 +39,7 @@ const deafultPhoneNumberDetails: PhoneNumberDetails = {
 };
 let phoneNumberDetails = reactive(deafultPhoneNumberDetails);
 
-const defaultFormData: FormData = {
+const defaultFormData: RegisterFormData = {
   username: '',
   password: '',
   phoneNumber: '',
@@ -52,39 +52,64 @@ const isValidForm = computed(() => {
   return formData.username && formData.password && phoneNumberDetails.isValid;
 });
 
+const isVerificationFormVisible = computed(() => {
+  return (
+    registerStore.phoneNumber &&
+    registerStore.sid &&
+    registerStore.verificationStatus === 'pending'
+  );
+});
+
 // Methods
 const onSubmit = async () => {
-  await registerStore
-    .registerUser({
-      ...formData,
-      phoneNumber: phoneNumberDetails.e164,
-    })
-    .then(() => {
-      const toastOptions: ToasterOptions = {
-        position: 'top-right',
-        timeout: 10_000,
-        persistent: false,
-      };
+  await registerStore.registerUser({
+    ...formData,
+    phoneNumber: phoneNumberDetails.e164,
+  });
+  const toastOptions: ToasterOptions = {
+    position: 'top-right',
+    timeout: 10_000,
+    persistent: false,
+  };
 
-      if (registerStore.error) {
-        toast?.info(
-          'Please try again, log in instead, or contact our customer support team if the problem persists.',
-          toastOptions
-        );
-        toast?.error(registerStore.error, toastOptions);
-      } else {
-        toast?.success('User registered successfully', toastOptions);
-      }
-    });
+  if (registerStore.error) {
+    toast?.info(
+      'Please try again, log in instead, or contact our customer support team if the problem persists.',
+      toastOptions
+    );
+    toast?.error(registerStore.error, toastOptions);
+  } else {
+    toast?.success('User registered successfully', toastOptions);
+  }
+
+  // Reset forms
+  Object.assign(formData, defaultFormData);
+  Object.assign(phoneNumberDetails, deafultPhoneNumberDetails);
 };
 
 const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
   Object.assign(phoneNumberDetails, event);
 };
+
+// Lifecycle
+onMounted(() => {
+  const localString = localStorage.getItem('user');
+  if (localString) {
+    const user: User = JSON.parse(localString);
+
+    registerStore.$patch({
+      user,
+    });
+  }
+});
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" class="flex flex-col gap-4 mt-8">
+  <form
+    v-if="!isVerificationFormVisible"
+    @submit.prevent="onSubmit"
+    class="flex flex-col gap-4 mt-8"
+  >
     <MazInput
       type="text"
       id="username"
@@ -137,11 +162,15 @@ const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
     >
   </form>
 
-  <VerificationCheck />
+  <VerificationCheck
+    v-else
+    :phone-number="registerStore.user.phoneNumber"
+    :sid="registerStore.user.verification.sid"
+  />
 
   <hr class="my-8" />
 
-  <p class="text-center">
+  <p class="text-center mb-8">
     Already have an account?
     <RouterLink :to="{ name: 'Login' }">Login</RouterLink>
   </p>

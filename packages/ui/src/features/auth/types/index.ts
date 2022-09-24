@@ -1,20 +1,29 @@
-export interface FormData {
+export interface RegisterFormData {
   username: string;
   password: string;
   phoneNumber: string;
   enableMFA: boolean;
 }
 
-export type User = Omit<FormData, 'password'> & {
+export interface VerifyCodeFormData {
+  verificationCode: string;
+  phoneNumber: string;
+  sid: string;
+}
+
+export type User = Omit<RegisterFormData, 'password'> & {
   id: string;
   isPhoneNumberVerified: boolean;
   verification: {
     sid: string;
     status: string;
+    createdAt: string;
+    updatedAt: string;
   };
 };
 
 export interface ErrorResponse {
-  status: number;
+  statusCode: number;
+  error: string;
   message: string;
 }

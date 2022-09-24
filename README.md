@@ -10,6 +10,12 @@ Copy the env file:
 cp .env.docker.example .env
 ```
 
+Generate a session string, example using your terminal:
+
+```sh
+echo "API_SESSION_SECRET=$(openssl rand -hex 32)" >> .env
+```
+
 Start the containers:
 
 ```sh
