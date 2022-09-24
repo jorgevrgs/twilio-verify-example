@@ -5,10 +5,10 @@ export interface FormData {
   enableMFA: boolean;
 }
 
-export interface User {
+export type User = Omit<FormData, 'password'> & {
   id: string;
-  username: string;
-  phoneNumber: string;
-  isPhoneNumberVerified: boolean;
-  isMfaEnabled: boolean;
-}
+  verification: {
+    sid: string;
+    status: string;
+  };
+};

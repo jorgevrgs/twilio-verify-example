@@ -27,11 +27,13 @@
     "fastify": "4.6.0",
     "fastify-cli": "5.4.2",
     "fastify-plugin": "4.2.1",
+    "lodash-es": "4.17.21",
     "nodemon": "2.0.20",
     "twilio": "3.82.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "2.4.2",
+    "@types/lodash-es": "4.17.6",
     "@types/node": "18.7.18",
     "concurrently": "7.4.0",
     "cross-env": "7.0.3",

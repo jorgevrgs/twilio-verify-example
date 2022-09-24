@@ -1,6 +1,7 @@
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
+import { omit } from 'lodash-es';
 
 const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.withTypeProvider<TypeBoxTypeProvider>().post(
@@ -49,11 +50,14 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
       reply.status(201);
 
-      return {
-        id: newUser?.insertedId,
-        verification,
-        ...request.body,
-      };
+      return omit(
+        {
+          id: newUser?.insertedId,
+          verification,
+          ...request.body,
+        },
+        ['password']
+      );
     }
   );
 };
