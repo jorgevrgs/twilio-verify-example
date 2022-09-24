@@ -54,16 +54,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue';
 import type { CountryCode } from 'libphonenumber-js';
 import { ToasterHandler } from 'maz-ui';
-import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
+import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazSwitch from 'maz-ui/components/MazSwitch';
-import ToggleCheckbox from '../../../components/ToggleCheckbox.vue';
-import { FormData } from '../types';
+import { defineComponent, inject } from 'vue';
 import { useRegisterStore } from '../stores/register.store';
+import { FormData } from '../types';
 
 interface RegisterFormProps {
   defaultCountryCode: CountryCode;
@@ -120,7 +119,6 @@ export default defineComponent({
     },
   }),
   components: {
-    ToggleCheckbox,
     MazPhoneNumberInput,
     MazSwitch,
     MazInput,
