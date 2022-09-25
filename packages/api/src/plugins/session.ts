@@ -1,7 +1,7 @@
 import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import fp from 'fastify-plugin';
-import { User } from '../types';
+import { UserDto } from '../dtos';
 
 declare global {
   namespace NodeJS {
@@ -13,7 +13,7 @@ declare global {
 
 declare module 'fastify' {
   interface Session {
-    user?: User;
+    user?: UserDto;
   }
 }
 

@@ -1,22 +1,16 @@
 import { ObjectId } from '@fastify/mongodb';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
 import { UserDto } from '../../dtos';
-import { User } from '../../types';
+import { CreateUserVerification } from '../../dtos/create-user-verification.dto';
+import { CreateUserDto } from '../../dtos/create-user.dto';
+import { registerSchema, verifyCodeSchema } from '../../schemas/auth.schema';
 
 const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.withTypeProvider<TypeBoxTypeProvider>().post(
     '/register',
     {
-      schema: {
-        body: Type.Object({
-          username: Type.String(),
-          password: Type.String({ minLength: 6 }),
-          phoneNumber: Type.String({ minLength: 10 }),
-          enableMFA: Type.Boolean({ default: true }),
-        }),
-      },
+      schema: registerSchema,
     },
     async function (request, reply) {
       const existingUser = await request.db
@@ -27,31 +21,37 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         throw reply.conflict('Username already exists');
       }
 
-      const result = await request.twilioVerify.verifications.create({
-        to: request.body.phoneNumber,
-        channel: 'sms',
-      });
-
       const hashedPassword = await request.helpers.hashPassword(
         request.body.password
       );
 
-      const verification = {
-        sid: result.sid,
-        status: result.status,
-        createdAt: result.dateCreated,
-        updatedAt: result.dateUpdated,
-      };
-
       // Create user in database
-      const usertToCreate = {
+      const usertToCreate = new CreateUserDto({
         username: request.body.username,
         password: hashedPassword,
         phoneNumber: request.body.phoneNumber,
         isPhoneNumberVerified: false,
         enableMFA: request.body.enableMFA,
-        verification,
-      };
+      });
+
+      if (request.body.enableMFA) {
+        const createdVerification =
+          await request.twilioVerify.verifications.create({
+            to: request.body.phoneNumber,
+            channel: 'sms',
+          });
+
+        request.log.info({ createdVerification });
+
+        const verification = new CreateUserVerification({
+          sid: createdVerification.sid,
+          status: createdVerification.status,
+          createdAt: createdVerification.dateCreated,
+          updatedAt: createdVerification.dateUpdated,
+        });
+
+        usertToCreate.verification = verification;
+      }
 
       const createdUser = await request.db
         ?.collection('users')
@@ -61,42 +61,34 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         throw reply.internalServerError('Failed to create user');
       }
 
-      const user = new UserDto({
+      request.log.info({ createdUser });
+
+      const response = new UserDto({
         ...usertToCreate,
         _id: createdUser.insertedId,
       });
 
-      request.session.set('user', user);
+      request.session.set('user', response);
+
+      request.log.info({ response });
 
       reply.status(201);
-      return user;
+      return response;
     }
   );
 
   fastify.withTypeProvider<TypeBoxTypeProvider>().post(
     '/verify-code',
     {
-      schema: {
-        body: Type.Object({
-          verificationCode: Type.String({
-            minLength: 4,
-            maxLength: 10,
-            examples: ['123456'],
-          }),
-          phoneNumber: Type.String({
-            minLength: 10,
-            examples: ['+573214567890'],
-          }),
-          sid: Type.String(),
-        }),
-      },
+      schema: verifyCodeSchema,
     },
     async function (request, reply) {
-      const currentUser = request.session.get<User>('user');
+      const currentUser = request.session.get<UserDto>('user');
 
       if (!currentUser) {
         await request.session.destroy();
-        throw reply.badRequest('Username already exists');
+
+        throw reply.unauthorized('Current user is not authenticated');
       }
 
       const result = await request.twilioVerify.verificationChecks.create({

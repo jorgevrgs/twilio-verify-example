@@ -1,5 +1,6 @@
 import omit from 'lodash.omit';
 import type { Document } from 'mongodb';
+import { CreateUserVerification } from './create-user-verification.dto';
 
 export class UserDto {
   'id': string;
@@ -7,12 +8,7 @@ export class UserDto {
   'phoneNumber': string;
   'enableMFA': boolean;
   'isPhoneNumberVerified': boolean;
-  'verification': {
-    sid: string;
-    status: string;
-    createdAt: Date;
-    updatedAt: Date;
-  };
+  'verification'?: CreateUserVerification;
 
   constructor(data?: Partial<Document>) {
     Object.assign(
