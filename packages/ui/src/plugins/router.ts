@@ -1,5 +1,7 @@
-import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
 import DefaultLayout from '@/layouts/default.vue';
+import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
+import { useAuthStore } from '../features/auth/stores/register.store';
+import { User } from '../features/auth/types';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -10,25 +12,25 @@ const routes: RouterOptions['routes'] = [
         path: '',
         name: 'Home',
         component: () => import('@/pages/HomePage.vue'),
-        meta: { requiresAuth: false },
+        meta: { canAccess: 'public' },
       },
       {
         path: 'login',
         name: 'Login',
         component: () => import('@/pages/LoginPage.vue'),
-        meta: { requiresAuth: false },
+        meta: { canAccess: 'onlyGuest' },
       },
       {
         path: 'register',
         name: 'Register',
         component: () => import('@/pages/RegisterPage.vue'),
-        meta: { requiresAuth: false },
+        meta: { canAccess: 'onlyGuest' },
       },
       {
-        path: 'dashboard',
-        name: 'Dashboard',
-        component: () => import('@/pages/DashboardPage.vue'),
-        meta: { requiresAuth: true },
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/pages/ProfilePage.vue'),
+        meta: { canAccess: 'onlyAuth' },
       },
     ],
   },
@@ -39,13 +41,32 @@ export const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  const isAuthenticated = false;
+router.beforeEach(async (to, from, next) => {
+  console.log('Running guard...');
 
-  if (requiresAuth && !isAuthenticated) {
+  const requiresAuth = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyAuth'
+  );
+
+  const authStore = useAuthStore();
+  const localString = localStorage.getItem('user');
+  if (localString) {
+    const storedUser: User = JSON.parse(localString);
+
+    authStore.$patch({ user: storedUser });
+  }
+
+  if (requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login' });
   } else {
-    next();
+    const requiresGuest = to.matched.some(
+      (record) => record.meta.canAccess === 'onlyGuest'
+    );
+
+    if (requiresGuest && authStore.isAuthenticated) {
+      next({ name: 'Profile' });
+    } else {
+      next();
+    }
   }
 });

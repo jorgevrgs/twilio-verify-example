@@ -1,18 +1,13 @@
 <template>
-  <h1>Register</h1>
-  <RegisterForm />
+  <section class="flex flex-col">
+    <h1>Register</h1>
+
+    <RegisterForm />
+  </section>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import RegisterForm from '../features/register/components/RegisterForm.vue';
-
-export default defineComponent({
-  setup() {
-    return {};
-  },
-  components: { RegisterForm },
-});
+<script lang="ts" setup>
+import RegisterForm from '../features/auth/components/RegisterForm.vue';
 </script>
 
 <style scoped></style>

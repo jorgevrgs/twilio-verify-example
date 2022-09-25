@@ -2,6 +2,6 @@ import 'vue-router';
 
 declare module 'vue-router' {
   interface RouteMeta {
-    requiresAuth: boolean;
+    canAccess?: 'public' | 'onlyGuest' | 'onlyAuth';
   }
 }
