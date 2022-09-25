@@ -48,12 +48,7 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
         request.log.info({ createdVerification });
 
-        const verification = new CreateUserVerification({
-          sid: createdVerification.sid,
-          status: createdVerification.status,
-          createdAt: createdVerification.dateCreated,
-          updatedAt: createdVerification.dateUpdated,
-        });
+        const verification = new CreateUserVerification(createdVerification);
 
         usertToCreate.verification = verification;
       }
@@ -164,12 +159,7 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
         request.log.info({ createdVerification });
 
-        const verification = new CreateUserVerification({
-          sid: createdVerification.sid,
-          status: createdVerification.status,
-          createdAt: createdVerification.dateCreated,
-          updatedAt: createdVerification.dateUpdated,
-        });
+        const verification = new CreateUserVerification(createdVerification);
 
         usertToUpdate.verification = verification;
       }
