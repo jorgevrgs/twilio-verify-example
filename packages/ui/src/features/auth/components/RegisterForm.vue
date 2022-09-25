@@ -91,9 +91,16 @@ const onSubmit = async (e: Event) => {
     );
     toast?.error(authStore.error, toastOptions);
   } else {
-    toast?.success('User registered successfully', toastOptions);
+    if (!authStore.isVerificationRequired) {
+      toast?.success(
+        'Check your mobile phone and fill out the form below with the code',
+        toastOptions
+      );
 
-    router.push({ name: 'Profile' });
+      router.push({ name: 'Profile' });
+    } else {
+      toast?.success('User registered successfully!', toastOptions);
+    }
   }
 
   // Reset forms
