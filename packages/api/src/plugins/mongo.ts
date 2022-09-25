@@ -23,19 +23,22 @@ declare module 'fastify' {
  *
  * @see https://github.com/fastify/fastify-mongodb
  */
-export default fp<FastifyMongodbOptions>(async (fastify, opts) => {
-  fastify
-    .register(mongo, {
-      ...opts,
-      // force to close the mongodb connection when app stopped
-      // the default value is false
-      forceClose: true,
-      url: process.env.MONGO_URL,
-    })
-    .decorateRequest('db', null)
-    .addHook('onRequest', async (request) => {
-      if (!request.db) {
-        request.db = fastify.mongo.db;
-      }
-    });
-});
+export default fp<FastifyMongodbOptions>(
+  async (fastify, opts) => {
+    fastify
+      .register(mongo, {
+        ...opts,
+        // force to close the mongodb connection when app stopped
+        // the default value is false
+        forceClose: true,
+        url: process.env.MONGO_URL,
+      })
+      .decorateRequest('db', null)
+      .addHook('onRequest', async (request) => {
+        if (!request.db) {
+          request.db = fastify.mongo.db;
+        }
+      });
+  },
+  { name: 'mongo' }
+);

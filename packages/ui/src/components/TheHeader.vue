@@ -16,15 +16,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useAuthStore } from '../features/auth/stores/register.store';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useAuthStore } from '../features/auth/stores';
 
 const route = useRoute();
-const router = useRouter();
 const authStore = useAuthStore();
-
-const isAuthenticated = toRef(authStore, 'isAuthenticated');
 
 const links = computed<
   Array<{ name: string; to: string; isVisible: boolean; isActive?: boolean }>
@@ -37,17 +34,17 @@ const links = computed<
   {
     name: 'Login',
     to: 'Login',
-    isVisible: !isAuthenticated.value,
+    isVisible: !authStore.isAuthenticated,
   },
   {
     name: 'Register',
     to: 'Register',
-    isVisible: !isAuthenticated.value,
+    isVisible: !authStore.isAuthenticated,
   },
   {
     name: 'Profile',
     to: 'Profile',
-    isVisible: isAuthenticated.value,
+    isVisible: authStore.isAuthenticated,
   },
 ]);
 

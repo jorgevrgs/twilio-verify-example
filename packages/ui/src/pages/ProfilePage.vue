@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import MazBtn from 'maz-ui/components/MazBtn';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../features/auth/stores/register.store';
+import { useAuthStore } from '../features/auth/stores';
 
 const authStore = useAuthStore();
 const router = useRouter();

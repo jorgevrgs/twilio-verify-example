@@ -2,74 +2,74 @@
 import { ToasterHandler, ToasterOptions } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import { computed, inject, reactive } from 'vue';
+import { computed, inject, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/register.store';
+import BounceLoader from 'vue-spinner/src/BounceLoader.vue';
+import { useAuthStore } from '../stores';
 
 const router = useRouter();
-const registerStore = useAuthStore();
+const authStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
 const LENGTH = 6;
 
-const props = defineProps({
-  phoneNumber: {
-    type: String,
-    required: true,
-  },
-  sid: {
-    type: String,
-    required: true,
-  },
-  next: {
-    type: String,
-    required: true,
-  },
-});
-
+// Data
 const formData = reactive({
   verificationCode: '',
+  phoneNumber: '',
+  sid: '',
 });
 
+// Computed
 const isValidCode = computed(() => {
   return formData.verificationCode.length === LENGTH;
 });
 
+// Methods
 function onReset() {
-  registerStore.$reset();
+  console.log('onReset');
+
+  authStore.$reset();
+  router.push({ name: 'Home' });
 }
 
 async function onSubmit() {
-  console.log({ ...formData, phoneNumber: props.phoneNumber, sid: props.sid });
-
-  await registerStore.verifyCode({
-    ...formData,
-    phoneNumber: props.phoneNumber,
-    sid: props.sid,
-  });
+  await authStore.verifyCode(formData);
 
   const toastOptions: ToasterOptions = {
-    position: 'top-right',
+    position: 'bottom',
     timeout: 10_000,
     persistent: false,
   };
 
-  if (registerStore.error) {
+  if (authStore.error) {
     toast?.info(
       'Please try again, log in instead, or contact our customer support team if the problem persists.',
       toastOptions
     );
-    toast?.error(registerStore.error, toastOptions);
+    toast?.error(authStore.error, toastOptions);
   } else {
     toast?.success('Code verified successfully', toastOptions);
 
-    router.push({ name: props.next });
+    router.push({ name: 'Profile' });
   }
 }
+
+// Lifecycle
+onMounted(() => {
+  // Verify with code
+  if (authStore.user?.verification) {
+    formData.phoneNumber = authStore.user.phoneNumber;
+    formData.sid = authStore.user.verification.sid;
+  }
+});
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" class="flex flex-col gap-4 mt-8">
+  <form
+    v-if="authStore.isPhoneVerificationInProgress"
+    class="flex flex-col gap-4 mt-8"
+  >
     <MazInput
       type="text"
       id="verificationCode"
@@ -86,7 +86,7 @@ async function onSubmit() {
       <MazBtn
         type="button"
         color="danger"
-        :disabled="registerStore.isLoading"
+        :disabled="authStore.isLoading"
         @click.prevent="onReset"
         >Cancel</MazBtn
       >
@@ -94,12 +94,16 @@ async function onSubmit() {
       <MazBtn
         type="submit"
         color="primary"
+        @click.prevent="onSubmit"
         :disabled="!isValidCode"
-        :loading="registerStore.isLoading"
+        :loading="authStore.isLoading"
         >Submit</MazBtn
       >
     </div>
   </form>
+  <div v-else class="flex justify-center items-center">
+    <BounceLoader />
+  </div>
 </template>
 
 <style lang="scss" scoped></style>

@@ -118,9 +118,11 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         throw reply.internalServerError('Failed to update user');
       }
 
-      request.session.set('user', updatedUser);
+      const response = new UserDto(updatedUser.value);
 
-      return new UserDto(updatedUser.value);
+      request.session.user = response;
+
+      return response;
     }
   );
 
@@ -134,6 +136,8 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         ?.collection('users')
         .findOne({ username: request.body.username });
 
+      request.log.info({ existingUser });
+
       if (!existingUser) {
         // Not clue what is going on here
         throw reply.notFound('Username or password is incorrect');
@@ -144,11 +148,15 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         existingUser.password
       );
 
+      request.log.info({ isPasswordValid });
+
       if (!isPasswordValid) {
         throw reply.notFound('Username or password is incorrect');
       }
 
       const usertToUpdate = new UpdateUserDto();
+
+      request.log.info({ usertToUpdate });
 
       if (existingUser.enableMFA) {
         const createdVerification =
@@ -184,7 +192,7 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
       const response = new UserDto(updatedUser.value);
 
-      request.session.set('user', response);
+      request.session.user = response;
 
       request.log.info({ response });
 

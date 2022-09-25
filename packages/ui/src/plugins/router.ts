@@ -1,7 +1,8 @@
 import DefaultLayout from '@/layouts/default.vue';
 import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
-import { useAuthStore } from '../features/auth/stores/register.store';
+import { useAuthStore } from '../features/auth/stores';
 import { User } from '../features/auth/types';
+import { httpClient } from '../utils/http-client';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -32,6 +33,12 @@ const routes: RouterOptions['routes'] = [
         component: () => import('@/pages/ProfilePage.vue'),
         meta: { canAccess: 'onlyAuth' },
       },
+      {
+        path: 'verification',
+        name: 'Verification',
+        component: () => import('@/pages/VerificationPage.vue'),
+        meta: { canAccess: 'onlyAuth' },
+      },
     ],
   },
 ];
@@ -41,32 +48,34 @@ export const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, from, next) => {
-  console.log('Running guard...');
-
+router.beforeEach(async (to, from) => {
   const requiresAuth = to.matched.some(
     (record) => record.meta.canAccess === 'onlyAuth'
   );
 
   const authStore = useAuthStore();
-  const localString = localStorage.getItem('user');
-  if (localString) {
-    const storedUser: User = JSON.parse(localString);
+  try {
+    const { data: authenticatedUser } = await httpClient.get<User>(
+      '/api/users/me'
+    );
+    authStore.$patch({ user: authenticatedUser });
+  } catch (error) {
+    // Ignore error
+  }
 
-    authStore.$patch({ user: storedUser });
+  if (to.name === 'Profile' && authStore.isPhoneVerificationInProgress) {
+    return { name: 'Verification' };
   }
 
   if (requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'Login' });
-  } else {
-    const requiresGuest = to.matched.some(
-      (record) => record.meta.canAccess === 'onlyGuest'
-    );
+    return { name: 'Login' };
+  }
 
-    if (requiresGuest && authStore.isAuthenticated) {
-      next({ name: 'Profile' });
-    } else {
-      next();
-    }
+  const requiresGuest = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyGuest'
+  );
+
+  if (requiresGuest && authStore.isAuthenticated) {
+    return { name: 'Profile' };
   }
 });

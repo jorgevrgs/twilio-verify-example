@@ -2,23 +2,10 @@
 import { ToasterHandler, ToasterOptions } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import { computed, inject, reactive } from 'vue';
+import { computed, inject, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/register.store';
+import { useAuthStore } from '../stores';
 import { LoginFormData } from '../types';
-import VerificationCheck from './VerificationCheck.vue';
-
-interface PhoneNumberDetails {
-  isValid: false;
-  countryCode: string;
-  countryCallingCode: string;
-  nationalNumber: string;
-  type?: string;
-  formatInternational: string;
-  formatNational: string;
-  uri: string;
-  e164: string;
-}
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -35,15 +22,6 @@ const isValidForm = computed(() => {
   return Boolean(formData.username) && Boolean(formData.password);
 });
 
-const isVerificationFormVisible = computed(() => {
-  return (
-    authStore.isVerificationRequired &&
-    authStore.phoneNumber &&
-    authStore.sid &&
-    authStore.verificationStatus === 'pending'
-  );
-});
-
 // Methods
 const onSubmit = async (e: Event) => {
   console.log('onSubmit');
@@ -53,7 +31,7 @@ const onSubmit = async (e: Event) => {
   await authStore.logInUser(formData);
 
   const toastOptions: ToasterOptions = {
-    position: 'top-right',
+    position: 'bottom',
     timeout: 10_000,
     persistent: false,
   };
@@ -70,27 +48,27 @@ const onSubmit = async (e: Event) => {
         'Check your mobile phone and fill out the form below with the code',
         toastOptions
       );
-
-      router.push({ name: 'Profile' });
     } else {
       toast?.success('User registered successfully!', toastOptions);
     }
+
+    router.push({ name: 'Profile' });
   }
 
   // Reset forms
   Object.assign(formData, defaultFormData);
 };
+
+// Lifecycle
+onMounted(() => {
+  if (authStore.isPhoneVerificationInProgress) {
+    router.push({ name: 'Verification' });
+  }
+});
 </script>
 
 <template>
-  <VerificationCheck
-    v-if="isVerificationFormVisible"
-    :phone-number="authStore.user.phoneNumber"
-    :sid="authStore.sid ?? ''"
-    next="Profile"
-  />
-
-  <form v-else class="flex flex-col gap-4 mt-8">
+  <form class="flex flex-col gap-4 mt-8">
     <MazInput
       type="text"
       id="username"

@@ -21,20 +21,23 @@ declare module 'fastify' {
   }
 }
 
-export default fp(async (fastify, opts) => {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
+export default fp(
+  async (fastify, opts) => {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
 
-  const client = twilio(accountSid, authToken);
+    const client = twilio(accountSid, authToken);
 
-  fastify
-    .decorate('twilio', client)
-    .decorateRequest('twilioVerify', null)
-    .addHook('onRequest', async (request) => {
-      if (!request.twilioVerify) {
-        request.twilioVerify = client.verify.v2.services(
-          process.env.TWILIO_VERIFY_SERVICE_SID
-        );
-      }
-    });
-});
+    fastify
+      .decorate('twilio', client)
+      .decorateRequest('twilioVerify', null)
+      .addHook('onRequest', async (request) => {
+        if (!request.twilioVerify) {
+          request.twilioVerify = client.verify.v2.services(
+            process.env.TWILIO_VERIFY_SERVICE_SID
+          );
+        }
+      });
+  },
+  { name: 'twilio' }
+);
