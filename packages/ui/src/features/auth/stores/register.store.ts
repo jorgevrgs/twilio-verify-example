@@ -18,12 +18,6 @@ export const useAuthStore = defineStore('auth', function () {
     enableMFA: false,
     isPhoneNumberVerified: false,
   };
-  const localString = localStorage.getItem('user');
-  if (localString) {
-    const storedUser: User = JSON.parse(localString);
-
-    defaultUser = storedUser;
-  }
   const user = reactive<User>(defaultUser);
 
   const isLoading = ref(false);
@@ -37,11 +31,10 @@ export const useAuthStore = defineStore('auth', function () {
     () => user.enableMFA && user.verification?.status === 'pending'
   );
   const isAuthenticated = computed(() => {
-    if (!user.id) {
-      return false;
-    }
-
-    if (user.enableMFA && !user.isPhoneNumberVerified) {
+    if (
+      !user.id ||
+      (user.id && user.enableMFA && !user.isPhoneNumberVerified)
+    ) {
       return false;
     }
 

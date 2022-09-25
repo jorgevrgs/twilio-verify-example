@@ -18,6 +18,7 @@ const router = useRouter();
 async function onLogOut() {
   await authStore.logout();
 
+  authStore.$reset();
   router.push({ name: 'Home' });
 }
 </script>

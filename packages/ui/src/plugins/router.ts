@@ -1,6 +1,7 @@
 import DefaultLayout from '@/layouts/default.vue';
 import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
 import { useAuthStore } from '../features/auth/stores/register.store';
+import { User } from '../features/auth/types';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -41,11 +42,19 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  console.log('Running guard...');
+
   const requiresAuth = to.matched.some(
     (record) => record.meta.canAccess === 'onlyAuth'
   );
 
   const authStore = useAuthStore();
+  const localString = localStorage.getItem('user');
+  if (localString) {
+    const storedUser: User = JSON.parse(localString);
+
+    authStore.$patch({ user: storedUser });
+  }
 
   if (requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login' });
