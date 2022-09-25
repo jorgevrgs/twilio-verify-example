@@ -3,8 +3,10 @@ import { ToasterHandler, ToasterOptions } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import { computed, inject, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/register.store';
 
+const router = useRouter();
 const registerStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
@@ -16,6 +18,10 @@ const props = defineProps({
     required: true,
   },
   sid: {
+    type: String,
+    required: true,
+  },
+  next: {
     type: String,
     required: true,
   },
@@ -56,6 +62,8 @@ async function onSubmit() {
     toast?.error(registerStore.error, toastOptions);
   } else {
     toast?.success('Code verified successfully', toastOptions);
+
+    router.push({ name: props.next });
   }
 }
 </script>
@@ -78,7 +86,7 @@ async function onSubmit() {
       <MazBtn
         type="button"
         color="danger"
-        :loading="registerStore.isLoading"
+        :disabled="registerStore.isLoading"
         @click.prevent="onReset"
         >Cancel</MazBtn
       >

@@ -123,6 +123,12 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       return new UserDto(updatedUser.value);
     }
   );
+
+  fastify.post('/logout', async function (request, reply) {
+    await request.session.destroy();
+
+    return reply.status(204);
+  });
 };
 
 export default authRoute;

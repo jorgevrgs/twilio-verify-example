@@ -14,7 +14,7 @@ export interface VerifyCodeFormData {
 export type User = Omit<RegisterFormData, 'password'> & {
   id: string;
   isPhoneNumberVerified: boolean;
-  verification: {
+  verification?: {
     sid: string;
     status: string;
     createdAt: string;

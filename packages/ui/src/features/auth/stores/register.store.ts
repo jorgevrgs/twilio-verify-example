@@ -11,27 +11,31 @@ import {
 
 export const useAuthStore = defineStore('auth', function () {
   // State
-  const user = reactive<User>({
+  let defaultUser: User = {
     id: '',
     username: '',
     phoneNumber: '',
     enableMFA: false,
     isPhoneNumberVerified: false,
-    verification: {
-      sid: '',
-      status: '',
-      createdAt: '',
-      updatedAt: '',
-    },
-  });
+  };
+  const localString = localStorage.getItem('user');
+  if (localString) {
+    const storedUser: User = JSON.parse(localString);
+
+    defaultUser = storedUser;
+  }
+  const user = reactive<User>(defaultUser);
 
   const isLoading = ref(false);
   const error = ref<string>();
 
   // Getters
-  const sid = computed(() => user.verification.sid);
+  const sid = computed(() => user.verification?.sid);
   const phoneNumber = computed(() => user.phoneNumber);
-  const verificationStatus = computed(() => user.verification.status);
+  const verificationStatus = computed(() => user.verification?.status);
+  const isVerificationRequired = computed(
+    () => user.enableMFA && user.verification?.status === 'pending'
+  );
   const isAuthenticated = computed(() => {
     if (!user.id) {
       return false;
@@ -43,16 +47,16 @@ export const useAuthStore = defineStore('auth', function () {
 
     return true;
   });
-  const nextStep = computed(() => {
+  const nextStep = computed<'authenticate' | 'verify' | 'profile'>(() => {
     if (!user.id) {
-      return 'register';
+      return 'authenticate';
     }
 
     if (user.enableMFA && !user.isPhoneNumberVerified) {
       return 'verify';
     }
 
-    return 'dashboard';
+    return 'profile';
   });
 
   // Actions
@@ -98,6 +102,17 @@ export const useAuthStore = defineStore('auth', function () {
       });
   }
 
+  async function logout() {
+    await httpClient
+      .post<null, AxiosResponse<null, ErrorResponse>, null>('/api/auth/logout')
+      .catch((err) => {
+        error.value = err.response.data.message;
+      })
+      .finally(() => {
+        localStorage.removeItem('user');
+      });
+  }
+
   return {
     // state
     user,
@@ -110,9 +125,11 @@ export const useAuthStore = defineStore('auth', function () {
     sid,
     phoneNumber,
     verificationStatus,
+    isVerificationRequired,
 
     // actions
     registerUser,
     verifyCode,
+    logout,
   };
 });

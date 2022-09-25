@@ -5,9 +5,10 @@ import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazSwitch from 'maz-ui/components/MazSwitch';
-import { computed, inject, onMounted, reactive } from 'vue';
+import { computed, inject, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/register.store';
-import { RegisterFormData, User } from '../types';
+import { RegisterFormData } from '../types';
 import VerificationCheck from './VerificationCheck.vue';
 
 interface PhoneNumberDetails {
@@ -22,12 +23,13 @@ interface PhoneNumberDetails {
   e164: string;
 }
 
+const router = useRouter();
 const authStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
 const defaultCountryCode: CountryCode = 'CO';
 
-const deafultPhoneNumberDetails: PhoneNumberDetails = {
+const defaultPhoneNumberDetails: PhoneNumberDetails = {
   isValid: false,
   countryCode: '',
   countryCallingCode: '',
@@ -37,7 +39,7 @@ const deafultPhoneNumberDetails: PhoneNumberDetails = {
   uri: '',
   e164: '',
 };
-let phoneNumberDetails = reactive(deafultPhoneNumberDetails);
+let phoneNumberDetails = reactive(defaultPhoneNumberDetails);
 
 const defaultFormData: RegisterFormData = {
   username: '',
@@ -45,15 +47,20 @@ const defaultFormData: RegisterFormData = {
   phoneNumber: '',
   enableMFA: false,
 };
-const formData = reactive(defaultFormData);
+const formData = reactive<RegisterFormData>(defaultFormData);
 
 // Computed
 const isValidForm = computed(() => {
-  return formData.username && formData.password && phoneNumberDetails.isValid;
+  return (
+    Boolean(formData.username) &&
+    Boolean(formData.password) &&
+    phoneNumberDetails.isValid
+  );
 });
 
 const isVerificationFormVisible = computed(() => {
   return (
+    authStore.isVerificationRequired &&
     authStore.phoneNumber &&
     authStore.sid &&
     authStore.verificationStatus === 'pending'
@@ -61,11 +68,16 @@ const isVerificationFormVisible = computed(() => {
 });
 
 // Methods
-const onSubmit = async () => {
+const onSubmit = async (e: Event) => {
+  console.log('onSubmit');
+
+  e.preventDefault();
+
   await authStore.registerUser({
     ...formData,
     phoneNumber: phoneNumberDetails.e164,
   });
+
   const toastOptions: ToasterOptions = {
     position: 'top-right',
     timeout: 10_000,
@@ -80,36 +92,29 @@ const onSubmit = async () => {
     toast?.error(authStore.error, toastOptions);
   } else {
     toast?.success('User registered successfully', toastOptions);
+
+    router.push({ name: 'Profile' });
   }
 
   // Reset forms
   Object.assign(formData, defaultFormData);
-  Object.assign(phoneNumberDetails, deafultPhoneNumberDetails);
+  Object.assign(phoneNumberDetails, defaultPhoneNumberDetails);
 };
 
 const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
   Object.assign(phoneNumberDetails, event);
 };
-
-// Lifecycle
-onMounted(() => {
-  const localString = localStorage.getItem('user');
-  if (localString) {
-    const user: User = JSON.parse(localString);
-
-    authStore.$patch({
-      user,
-    });
-  }
-});
 </script>
 
 <template>
-  <form
-    v-if="!isVerificationFormVisible"
-    @submit.prevent="onSubmit"
-    class="flex flex-col gap-4 mt-8"
-  >
+  <VerificationCheck
+    v-if="isVerificationFormVisible"
+    :phone-number="authStore.user.phoneNumber"
+    :sid="authStore.sid ?? ''"
+    next="Profile"
+  />
+
+  <form v-else class="flex flex-col gap-4 mt-8">
     <MazInput
       type="text"
       id="username"
@@ -152,21 +157,17 @@ onMounted(() => {
       />
     </label>
 
-    <MazBtn
-      type="submit"
-      color="primary"
-      :disabled="!isValidForm"
-      class="self-end"
-      :loading="authStore.isLoading"
-      >Submit</MazBtn
-    >
+    <div class="flex justify-end">
+      <MazBtn
+        @click.prevent="onSubmit"
+        type="submit"
+        color="primary"
+        :disabled="!isValidForm"
+        :loading="authStore.isLoading"
+        >Submit</MazBtn
+      >
+    </div>
   </form>
-
-  <VerificationCheck
-    v-else
-    :phone-number="authStore.user.phoneNumber"
-    :sid="authStore.user.verification.sid"
-  />
 
   <hr class="my-8" />
 

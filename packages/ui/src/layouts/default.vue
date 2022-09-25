@@ -6,18 +6,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import TheHeader from '../components/TheHeader.vue';
+<script lang="ts" setup>
 import TheBody from '../components/TheBody.vue';
 import TheFooter from '../components/TheFooter.vue';
-
-export default defineComponent({
-  setup() {
-    return {};
-  },
-  components: { TheHeader, TheBody, TheFooter },
-});
+import TheHeader from '../components/TheHeader.vue';
 </script>
 
 <style scoped></style>

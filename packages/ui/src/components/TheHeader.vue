@@ -13,39 +13,41 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../features/auth/stores/register.store';
 
 const route = useRoute();
 const authStore = useAuthStore();
 
-const links = reactive<Array<{ name: string; to: string; isActive?: boolean }>>(
-  [
+const links = computed(() => {
+  const result = [
     {
       name: 'Home',
       to: 'Home',
     },
-  ]
-);
+  ];
 
-if (authStore.isAuthenticated) {
-  links.push({
-    name: 'Profile',
-    to: 'Profile',
-  });
-} else {
-  links.push(
-    {
-      name: 'Login',
-      to: 'Login',
-    },
-    {
-      name: 'Register',
-      to: 'Register',
-    }
-  );
-}
+  if (authStore.isAuthenticated) {
+    result.push({
+      name: 'Profile',
+      to: 'Profile',
+    });
+  } else {
+    result.push(
+      {
+        name: 'Login',
+        to: 'Login',
+      },
+      {
+        name: 'Register',
+        to: 'Register',
+      }
+    );
+  }
+
+  return result;
+});
 
 const isActive = (name: string) => route.name === name;
 </script>
