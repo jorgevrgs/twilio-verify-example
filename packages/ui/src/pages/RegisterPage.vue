@@ -6,16 +6,8 @@
   </section>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
 import RegisterForm from '../features/auth/components/RegisterForm.vue';
-
-export default defineComponent({
-  setup() {
-    return {};
-  },
-  components: { RegisterForm },
-});
 </script>
 
 <style scoped></style>

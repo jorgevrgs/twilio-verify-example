@@ -22,7 +22,7 @@ interface PhoneNumberDetails {
   e164: string;
 }
 
-const registerStore = useAuthStore();
+const authStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
 const defaultCountryCode: CountryCode = 'CO';
@@ -54,15 +54,15 @@ const isValidForm = computed(() => {
 
 const isVerificationFormVisible = computed(() => {
   return (
-    registerStore.phoneNumber &&
-    registerStore.sid &&
-    registerStore.verificationStatus === 'pending'
+    authStore.phoneNumber &&
+    authStore.sid &&
+    authStore.verificationStatus === 'pending'
   );
 });
 
 // Methods
 const onSubmit = async () => {
-  await registerStore.registerUser({
+  await authStore.registerUser({
     ...formData,
     phoneNumber: phoneNumberDetails.e164,
   });
@@ -72,12 +72,12 @@ const onSubmit = async () => {
     persistent: false,
   };
 
-  if (registerStore.error) {
+  if (authStore.error) {
     toast?.info(
       'Please try again, log in instead, or contact our customer support team if the problem persists.',
       toastOptions
     );
-    toast?.error(registerStore.error, toastOptions);
+    toast?.error(authStore.error, toastOptions);
   } else {
     toast?.success('User registered successfully', toastOptions);
   }
@@ -97,7 +97,7 @@ onMounted(() => {
   if (localString) {
     const user: User = JSON.parse(localString);
 
-    registerStore.$patch({
+    authStore.$patch({
       user,
     });
   }
@@ -157,15 +157,15 @@ onMounted(() => {
       color="primary"
       :disabled="!isValidForm"
       class="self-end"
-      :loading="registerStore.isLoading"
+      :loading="authStore.isLoading"
       >Submit</MazBtn
     >
   </form>
 
   <VerificationCheck
     v-else
-    :phone-number="registerStore.user.phoneNumber"
-    :sid="registerStore.user.verification.sid"
+    :phone-number="authStore.user.phoneNumber"
+    :sid="authStore.user.verification.sid"
   />
 
   <hr class="my-8" />
