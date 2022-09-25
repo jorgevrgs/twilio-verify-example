@@ -5,6 +5,8 @@ export interface RegisterFormData {
   enableMFA: boolean;
 }
 
+export type LoginFormData = Pick<RegisterFormData, 'username' | 'password'>;
+
 export interface VerifyCodeFormData {
   verificationCode: string;
   phoneNumber: string;

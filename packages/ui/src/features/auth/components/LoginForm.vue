@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import type { CountryCode } from 'libphonenumber-js';
 import { ToasterHandler, ToasterOptions } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
-import MazSwitch from 'maz-ui/components/MazSwitch';
 import { computed, inject, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/register.store';
-import { RegisterFormData } from '../types';
+import { LoginFormData } from '../types';
 import VerificationCheck from './VerificationCheck.vue';
 
 interface PhoneNumberDetails {
@@ -27,35 +24,15 @@ const router = useRouter();
 const authStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
-const defaultCountryCode: CountryCode = 'CO';
-
-const defaultPhoneNumberDetails: PhoneNumberDetails = {
-  isValid: false,
-  countryCode: '',
-  countryCallingCode: '',
-  nationalNumber: '',
-  formatInternational: '',
-  formatNational: '',
-  uri: '',
-  e164: '',
-};
-let phoneNumberDetails = reactive(defaultPhoneNumberDetails);
-
-const defaultFormData: RegisterFormData = {
+const defaultFormData: LoginFormData = {
   username: '',
   password: '',
-  phoneNumber: '',
-  enableMFA: false,
 };
-const formData = reactive<RegisterFormData>(defaultFormData);
+const formData = reactive<LoginFormData>(defaultFormData);
 
 // Computed
 const isValidForm = computed(() => {
-  return (
-    Boolean(formData.username) &&
-    Boolean(formData.password) &&
-    phoneNumberDetails.isValid
-  );
+  return Boolean(formData.username) && Boolean(formData.password);
 });
 
 const isVerificationFormVisible = computed(() => {
@@ -73,10 +50,7 @@ const onSubmit = async (e: Event) => {
 
   e.preventDefault();
 
-  await authStore.registerUser({
-    ...formData,
-    phoneNumber: phoneNumberDetails.e164,
-  });
+  await authStore.logInUser(formData);
 
   const toastOptions: ToasterOptions = {
     position: 'top-right',
@@ -105,11 +79,6 @@ const onSubmit = async (e: Event) => {
 
   // Reset forms
   Object.assign(formData, defaultFormData);
-  Object.assign(phoneNumberDetails, defaultPhoneNumberDetails);
-};
-
-const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
-  Object.assign(phoneNumberDetails, event);
 };
 </script>
 
@@ -141,28 +110,6 @@ const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
       autocomplete="new-password"
       required
     />
-
-    <MazPhoneNumberInput
-      id="phoneNumber"
-      label="Phone Number"
-      show-code-on-list
-      v-model="formData.phoneNumber"
-      required
-      :default-country-code="defaultCountryCode"
-      @update="onPhoneNumberUpdate"
-      :success="phoneNumberDetails?.isValid"
-      autocomplete="tel"
-    />
-
-    <label class="flex flex-col">
-      <span>Enable MFA</span>
-      <MazSwitch
-        id="enableMFA"
-        color="primary"
-        v-model="formData.enableMFA"
-        required
-      />
-    </label>
 
     <div class="flex justify-end">
       <MazBtn

@@ -9,6 +9,13 @@ export const registerSchema = {
   }),
 };
 
+export const loginSchema = {
+  body: Type.Object({
+    username: Type.String(),
+    password: Type.String({ minLength: 6 }),
+  }),
+};
+
 export const verifyCodeSchema = {
   body: Type.Object({
     verificationCode: Type.String({

@@ -4,6 +4,7 @@ import { computed, reactive, ref } from 'vue';
 import { httpClient } from '../../../utils/http-client';
 import {
   ErrorResponse,
+  LoginFormData,
   RegisterFormData,
   User,
   VerifyCodeFormData,
@@ -95,6 +96,27 @@ export const useAuthStore = defineStore('auth', function () {
       });
   }
 
+  async function logInUser(formData: LoginFormData) {
+    isLoading.value = true;
+    error.value = undefined;
+
+    await httpClient
+      .post<User, AxiosResponse<User, ErrorResponse>>(
+        '/api/auth/login',
+        formData
+      )
+      .then((res) => {
+        Object.assign(user, res.data);
+        localStorage.setItem('user', JSON.stringify(res.data));
+      })
+      .catch((err) => {
+        error.value = err.response.data.message;
+      })
+      .finally(() => {
+        isLoading.value = false;
+      });
+  }
+
   async function logout() {
     await httpClient
       .post<null, AxiosResponse<null, ErrorResponse>, null>('/api/auth/logout')
@@ -123,6 +145,7 @@ export const useAuthStore = defineStore('auth', function () {
     // actions
     registerUser,
     verifyCode,
+    logInUser,
     logout,
   };
 });
