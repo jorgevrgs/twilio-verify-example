@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import parsePhoneNumber from 'libphonenumber-js';
-import { ToasterHandler, ToasterOptions } from 'maz-ui';
+import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import { computed, inject, onMounted, reactive } from 'vue';
+import {
+  computed,
+  inject,
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+} from 'vue';
 import { useRouter } from 'vue-router';
 import BounceLoader from 'vue-spinner/src/BounceLoader.vue';
+import { getSecondsToExpire } from '../../../utils/dates';
 import { hidePartOfString } from '../../../utils/strings';
 import { useAuthStore } from '../stores';
 
@@ -22,6 +31,19 @@ const formData = reactive({
   sid: '',
 });
 
+const timer = ref<NodeJS.Timer>();
+const secondsToExpire = ref(
+  getSecondsToExpire(authStore.user?.verification?.updatedAt as string)
+);
+const formattedTimeToExpire = computed(() => {
+  const minutes = Math.floor(secondsToExpire.value / 60);
+  const seconds = secondsToExpire.value % 60;
+
+  return `${minutes.toString().padStart(2, '0')}:${seconds
+    .toString()
+    .padStart(2, '0')}`;
+});
+
 // Computed
 const isValidCode = computed(() => {
   return formData.verificationCode.length === LENGTH;
@@ -36,7 +58,8 @@ const formatedPhoneNumber = computed(() => {
 });
 
 // Methods
-function onReset() {
+async function onReset() {
+  await authStore.logout();
   authStore.$reset();
   router.push({ name: 'Home' });
 }
@@ -44,20 +67,13 @@ function onReset() {
 async function onSubmit() {
   await authStore.verifyCode(formData);
 
-  const toastOptions: ToasterOptions = {
-    position: 'bottom',
-    timeout: 10_000,
-    persistent: false,
-  };
-
   if (authStore.error) {
     toast?.info(
-      'Please try again, log in instead, or contact our customer support team if the problem persists.',
-      toastOptions
+      'Please try again, log in instead, or contact our customer support team if the problem persists.'
     );
-    toast?.error(authStore.error, toastOptions);
+    toast?.error(authStore.error);
   } else {
-    toast?.success('Code verified successfully', toastOptions);
+    toast?.success('Code verified successfully');
 
     router.push({ name: 'Profile' });
   }
@@ -71,6 +87,21 @@ onMounted(() => {
     formData.sid = authStore.user.verification.sid;
   }
 });
+
+onBeforeMount(() => {
+  timer.value = setInterval(() => {
+    if (secondsToExpire.value <= 0) {
+      clearInterval(timer.value);
+      console.log('timer expired', secondsToExpire.value);
+    } else {
+      secondsToExpire.value--;
+    }
+  }, 1000);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(timer.value);
+});
 </script>
 
 <template>
@@ -79,9 +110,15 @@ onMounted(() => {
     class="flex flex-col gap-4 mt-8"
   >
     <div class="p-4 bg-blue-200">
-      ℹ️ A message has been sent to your phone number
+      ℹ️
+      {{
+        authStore.user?.verification?.channel === 'sms' ? 'A message' : 'A call'
+      }}
+      has been sent to your phone number
       <span class="font-semibold">{{ formatedPhoneNumber }}</span
-      >. Please enter the code below.
+      >. Please enter the code below before it expires in
+      <span class="font-bold font-mono">{{ formattedTimeToExpire }}</span
+      >.
     </div>
 
     <MazInput

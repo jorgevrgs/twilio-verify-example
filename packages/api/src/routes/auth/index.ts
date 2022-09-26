@@ -6,6 +6,7 @@ import { CreateUserVerification } from '../../dtos/create-user-verification.dto'
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { UpdateUserDto } from '../../dtos/update-user.dto';
 import {
+  channel,
   loginSchema,
   registerSchema,
   verifyCodeSchema,
@@ -43,7 +44,7 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         const createdVerification =
           await request.twilioVerify.verifications.create({
             to: request.body.phoneNumber,
-            channel: 'sms',
+            channel: request.body.channel || channel.sms,
           });
 
         request.log.info({ createdVerification });
@@ -162,7 +163,7 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         const createdVerification =
           await request.twilioVerify.verifications.create({
             to: existingUser.phoneNumber,
-            channel: 'sms',
+            channel: existingUser.defaultChannel || channel.sms,
           });
 
         request.log.info({ createdVerification });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ToasterHandler, ToasterOptions } from 'maz-ui';
+import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import { computed, inject, onMounted, reactive } from 'vue';
@@ -30,26 +30,18 @@ const onSubmit = async (e: Event) => {
 
   await authStore.logInUser(formData);
 
-  const toastOptions: ToasterOptions = {
-    position: 'bottom',
-    timeout: 10_000,
-    persistent: false,
-  };
-
   if (authStore.error) {
-    toast?.info(
-      'Please try again, log in instead, or contact our customer support team if the problem persists.',
-      toastOptions
+    toast?.warning(
+      'Please try again, log in instead, or contact our customer support team if the problem persists.'
     );
-    toast?.error(authStore.error, toastOptions);
+    toast?.error(authStore.error);
   } else {
-    if (!authStore.isVerificationRequired) {
+    if (!authStore.user?.enableMFA) {
       toast?.success(
-        'Check your mobile phone and fill out the form below with the code',
-        toastOptions
+        'Redirecting to verification page... Please wait a few seconds while you receive the verification code.'
       );
     } else {
-      toast?.success('User registered successfully!', toastOptions);
+      toast?.success('User registered successfully!');
     }
 
     router.push({ name: 'Profile' });
@@ -85,7 +77,7 @@ onMounted(() => {
       id="password"
       label="Password"
       aria-label="Password"
-      autocomplete="new-password"
+      autocomplete="current-password"
       required
     />
 

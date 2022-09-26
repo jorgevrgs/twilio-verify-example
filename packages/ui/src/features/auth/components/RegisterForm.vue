@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { CountryCode } from 'libphonenumber-js';
-import { ToasterHandler, ToasterOptions } from 'maz-ui';
+import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
+import MazSelect from 'maz-ui/components/MazSelect';
 import MazSwitch from 'maz-ui/components/MazSwitch';
 import { computed, inject, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
@@ -27,6 +28,16 @@ const authStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
 const defaultCountryCode: CountryCode = 'CO';
+const channels = [
+  {
+    value: 'sms',
+    label: 'SMS',
+  },
+  {
+    value: 'call',
+    label: 'Call',
+  },
+];
 
 const defaultPhoneNumberDetails: PhoneNumberDetails = {
   isValid: false,
@@ -45,6 +56,7 @@ const defaultFormData: RegisterFormData = {
   password: '',
   phoneNumber: '',
   enableMFA: false,
+  channel: 'sms',
 };
 const formData = reactive<RegisterFormData>(defaultFormData);
 
@@ -64,26 +76,18 @@ const onSubmit = async (e: Event) => {
     phoneNumber: phoneNumberDetails.e164,
   });
 
-  const toastOptions: ToasterOptions = {
-    position: 'bottom',
-    timeout: 10_000,
-    persistent: false,
-  };
-
   if (authStore.error) {
     toast?.info(
-      'Please try again, log in instead, or contact our customer support team if the problem persists.',
-      toastOptions
+      'Please try again, log in instead, or contact our customer support team if the problem persists.'
     );
-    toast?.error(authStore.error, toastOptions);
+    toast?.error(authStore.error);
   } else {
     if (!authStore.isVerificationRequired) {
       toast?.success(
-        'Check your mobile phone and fill out the form below with the code',
-        toastOptions
+        'Check your mobile phone and fill out the form below with the code'
       );
     } else {
-      toast?.success('User registered successfully!', toastOptions);
+      toast?.success('User registered successfully!');
     }
 
     router.push({ name: 'Profile' });
@@ -149,6 +153,14 @@ onMounted(() => {
         required
       />
     </label>
+
+    <MazSelect
+      v-show="formData.enableMFA"
+      v-model="formData.channel"
+      label="Select channel"
+      :options="channels"
+      orientation="col"
+    />
 
     <div class="flex justify-end">
       <MazBtn

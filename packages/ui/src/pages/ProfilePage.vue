@@ -25,12 +25,23 @@
         <dd class="flex-1 tracking-widest">********</dd>
       </div>
 
-      <div class="flex w-full">
-        <dt class="flex-1">Enable Two-Factor Authentication (2FA)</dt>
-        <dd class="flex-1">
-          <MazSwitch color="info" disabled v-model="isMFAEnbled" />
-        </dd>
-      </div>
+      <section v-if="authStore.user?.enableMFA">
+        <h2 class="text-xl">MFA</h2>
+
+        <div class="flex w-full">
+          <dt class="flex-1">Enable Two-Factor Authentication (2FA)</dt>
+          <dd class="flex-1">
+            <MazSwitch color="info" disabled v-model="isMFAEnbled" />
+          </dd>
+        </div>
+
+        <div class="flex w-full">
+          <dt class="flex-1">Channel</dt>
+          <dd class="flex-1 tracking-widest">
+            {{ authStore.user?.defaultChannel || 'SMS' }}
+          </dd>
+        </div>
+      </section>
     </div>
   </section>
 </template>
