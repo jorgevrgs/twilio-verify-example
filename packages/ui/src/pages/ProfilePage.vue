@@ -14,7 +14,7 @@
       </div>
 
       <div class="flex w-full">
-        <dy class="flex-1">Phone Number</dy>
+        <dt class="flex-1">Phone Number</dt>
         <dd class="flex-1">
           {{ formatedPhoneNumber }}
         </dd>
