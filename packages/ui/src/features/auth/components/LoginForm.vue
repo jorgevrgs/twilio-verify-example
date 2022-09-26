@@ -36,7 +36,7 @@ const onSubmit = async (e: Event) => {
     );
     toast?.error(authStore.error);
   } else {
-    if (!authStore.user?.enableMFA) {
+    if (authStore.user?.enableMFA) {
       toast?.success(
         'Redirecting to verification page... Please wait a few seconds while you receive the verification code.'
       );
