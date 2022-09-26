@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type { CountryCode } from 'libphonenumber-js';
-import { ToasterHandler, ToasterOptions } from 'maz-ui';
+import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
+import MazSelect from 'maz-ui/components/MazSelect';
 import MazSwitch from 'maz-ui/components/MazSwitch';
-import { computed, inject, reactive } from 'vue';
+import { computed, inject, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/register.store';
+import { useAuthStore } from '../stores';
 import { RegisterFormData } from '../types';
-import VerificationCheck from './VerificationCheck.vue';
 
 interface PhoneNumberDetails {
   isValid: false;
@@ -28,6 +28,16 @@ const authStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
 const defaultCountryCode: CountryCode = 'CO';
+const channels = [
+  {
+    value: 'sms',
+    label: 'SMS',
+  },
+  {
+    value: 'call',
+    label: 'Call',
+  },
+];
 
 const defaultPhoneNumberDetails: PhoneNumberDetails = {
   isValid: false,
@@ -46,6 +56,7 @@ const defaultFormData: RegisterFormData = {
   password: '',
   phoneNumber: '',
   enableMFA: false,
+  channel: 'sms',
 };
 const formData = reactive<RegisterFormData>(defaultFormData);
 
@@ -58,49 +69,28 @@ const isValidForm = computed(() => {
   );
 });
 
-const isVerificationFormVisible = computed(() => {
-  return (
-    authStore.isVerificationRequired &&
-    authStore.phoneNumber &&
-    authStore.sid &&
-    authStore.verificationStatus === 'pending'
-  );
-});
-
 // Methods
 const onSubmit = async (e: Event) => {
-  console.log('onSubmit');
-
-  e.preventDefault();
-
   await authStore.registerUser({
     ...formData,
     phoneNumber: phoneNumberDetails.e164,
   });
 
-  const toastOptions: ToasterOptions = {
-    position: 'top-right',
-    timeout: 10_000,
-    persistent: false,
-  };
-
   if (authStore.error) {
     toast?.info(
-      'Please try again, log in instead, or contact our customer support team if the problem persists.',
-      toastOptions
+      'Please try again, log in instead, or contact our customer support team if the problem persists.'
     );
-    toast?.error(authStore.error, toastOptions);
+    toast?.error(authStore.error);
   } else {
     if (!authStore.isVerificationRequired) {
       toast?.success(
-        'Check your mobile phone and fill out the form below with the code',
-        toastOptions
+        'Check your mobile phone and fill out the form below with the code'
       );
-
-      router.push({ name: 'Profile' });
     } else {
-      toast?.success('User registered successfully!', toastOptions);
+      toast?.success('User registered successfully!');
     }
+
+    router.push({ name: 'Profile' });
   }
 
   // Reset forms
@@ -111,17 +101,17 @@ const onSubmit = async (e: Event) => {
 const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
   Object.assign(phoneNumberDetails, event);
 };
+
+// Lifecycle
+onMounted(() => {
+  if (authStore.isPhoneVerificationInProgress) {
+    router.push({ name: 'Verification' });
+  }
+});
 </script>
 
 <template>
-  <VerificationCheck
-    v-if="isVerificationFormVisible"
-    :phone-number="authStore.user.phoneNumber"
-    :sid="authStore.sid ?? ''"
-    next="Profile"
-  />
-
-  <form v-else class="flex flex-col gap-4 mt-8">
+  <form class="flex flex-col gap-4 mt-8">
     <MazInput
       type="text"
       id="username"
@@ -164,6 +154,14 @@ const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
       />
     </label>
 
+    <MazSelect
+      v-show="formData.enableMFA"
+      v-model="formData.channel"
+      label="Select channel"
+      :options="channels"
+      orientation="col"
+    />
+
     <div class="flex justify-end">
       <MazBtn
         @click.prevent="onSubmit"
@@ -175,11 +173,4 @@ const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
       >
     </div>
   </form>
-
-  <hr class="my-8" />
-
-  <p class="text-center mb-8">
-    Already have an account?
-    <RouterLink :to="{ name: 'Login' }">Login</RouterLink>
-  </p>
 </template>
