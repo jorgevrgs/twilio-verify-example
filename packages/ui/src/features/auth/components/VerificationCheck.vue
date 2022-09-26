@@ -131,6 +131,7 @@ onBeforeUnmount(() => {
       placeholder="123456"
       :valid-button="isValidCode"
       required
+      auto-focus
     />
 
     <div class="flex justify-end gap-8">

@@ -120,6 +120,7 @@ onMounted(() => {
       aria-label="Username"
       autocomplete="username"
       required
+      auto-focus
     />
 
     <MazInput

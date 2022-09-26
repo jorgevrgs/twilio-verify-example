@@ -34,6 +34,12 @@ const routes: RouterOptions['routes'] = [
         meta: { canAccess: 'onlyAuth' },
       },
       {
+        path: 'profile/change-password',
+        name: 'ChangePassword',
+        component: () => import('@/pages/ChangePasswordPage.vue'),
+        meta: { canAccess: 'onlyAuth' },
+      },
+      {
         path: 'verification',
         name: 'Verification',
         component: () => import('@/pages/VerificationPage.vue'),

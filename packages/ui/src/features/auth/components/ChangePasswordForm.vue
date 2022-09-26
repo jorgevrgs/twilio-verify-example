@@ -2,24 +2,37 @@
 import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import { computed, inject, onMounted, reactive } from 'vue';
+import { computed, inject, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores';
-import { LoginFormData } from '../types';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const toast = inject<ToasterHandler>('toast');
 
-const defaultFormData: LoginFormData = {
-  username: '',
-  password: '',
+const username = ref('');
+const defaultFormData = {
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
 };
-const formData = reactive<LoginFormData>(defaultFormData);
+
+const formData = reactive(defaultFormData);
 
 // Computed
 const isValidForm = computed(() => {
-  return Boolean(formData.username) && Boolean(formData.password);
+  return (
+    Boolean(formData.currentPassword) &&
+    Boolean(formData.newPassword) &&
+    Boolean(formData.confirmPassword) &&
+    formData.newPassword === formData.confirmPassword
+  );
+});
+const arePasswordsValid = computed(() => {
+  return (
+    formData.newPassword.length >= 6 &&
+    formData.newPassword === formData.confirmPassword
+  );
 });
 
 // Methods
@@ -28,7 +41,7 @@ const onSubmit = async (e: Event) => {
 
   e.preventDefault();
 
-  await authStore.logInUser(formData);
+  // await authStore.changePassword(formData);
 
   if (authStore.error) {
     toast?.warning(
@@ -56,29 +69,55 @@ onMounted(() => {
   if (authStore.isPhoneVerificationInProgress) {
     router.push({ name: 'Verification' });
   }
+
+  if (authStore.user) {
+    username.value = authStore.user.username;
+  }
 });
 </script>
 
 <template>
   <form class="flex flex-col gap-4 mt-8">
-    <MazInput
-      type="text"
+    <input
+      type="hidden"
+      name="username"
       id="username"
-      label="Username"
-      v-model="formData.username"
-      aria-label="Username"
+      v-model="username"
       autocomplete="username"
-      required
-      auto-focus
     />
 
     <MazInput
       type="password"
-      v-model="formData.password"
-      id="password"
-      label="Password"
-      aria-label="Password"
+      v-model="formData.currentPassword"
+      id="current-password"
+      label="Current Password"
+      aria-label="Current Password"
       autocomplete="current-password"
+      required
+      auto-focus
+    />
+
+    <hr class="border-gray-200 dark:border-gray-700 my-8" />
+
+    <MazInput
+      type="password"
+      v-model="formData.newPassword"
+      id="new-password"
+      label="New Password"
+      aria-label="New Password"
+      autocomplete="current-password"
+      :valid-button="arePasswordsValid"
+      required
+    />
+
+    <MazInput
+      type="password"
+      v-model="formData.confirmPassword"
+      id="confirm-password"
+      label="Confirm Password"
+      aria-label="Confirm Password"
+      autocomplete="confirm-password"
+      :valid-button="arePasswordsValid"
       required
     />
 
