@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import parsePhoneNumber from 'libphonenumber-js';
 import { ToasterHandler, ToasterOptions } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import { computed, inject, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import BounceLoader from 'vue-spinner/src/BounceLoader.vue';
+import { hidePartOfString } from '../../../utils/strings';
 import { useAuthStore } from '../stores';
 
 const router = useRouter();
@@ -24,11 +26,17 @@ const formData = reactive({
 const isValidCode = computed(() => {
   return formData.verificationCode.length === LENGTH;
 });
+const formatedPhoneNumber = computed(() => {
+  if (!authStore.user?.phoneNumber) return null;
+
+  const str =
+    parsePhoneNumber(authStore.user?.phoneNumber)?.formatInternational() || '';
+
+  return hidePartOfString(str);
+});
 
 // Methods
 function onReset() {
-  console.log('onReset');
-
   authStore.$reset();
   router.push({ name: 'Home' });
 }
@@ -70,6 +78,12 @@ onMounted(() => {
     v-if="authStore.isPhoneVerificationInProgress"
     class="flex flex-col gap-4 mt-8"
   >
+    <div class="p-4 bg-blue-200">
+      ℹ️ A message has been sent to your phone number
+      <span class="font-semibold">{{ formatedPhoneNumber }}</span
+      >. Please enter the code below.
+    </div>
+
     <MazInput
       type="text"
       id="verificationCode"
