@@ -1,5 +1,5 @@
 <template>
-  <header class="flex justify-center gap-8">
+  <header class="flex justify-center gap-8 mb-8 pb-2 border-b-2">
     <RouterLink
       class="w-16 text-center py-2 hover:font-bold"
       :class="{

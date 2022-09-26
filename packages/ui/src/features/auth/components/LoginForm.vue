@@ -41,7 +41,7 @@ const onSubmit = async (e: Event) => {
         'Redirecting to verification page... Please wait a few seconds while you receive the verification code.'
       );
     } else {
-      toast?.success('User registered successfully!');
+      toast?.success('User signed in successfully!');
     }
 
     router.push({ name: 'Profile' });
