@@ -43,7 +43,7 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         ?.collection('users')
         .updateOne(
           { _id: new ObjectId(request.session.user?.id) },
-          { $set: { isPhoneNumberVerified: true } }
+          { $set: { isPhoneNumberVerified: true, status: 'confirmed' } }
         );
 
       return response;
