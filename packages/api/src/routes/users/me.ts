@@ -7,8 +7,6 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     '/me',
     { preHandler: fastify.auth([fastify.isAuthenticated]) },
     async function (request, reply) {
-      console.log({ session: request.session.user?.id });
-
       const user = await request.db
         ?.collection('users')
         .findOne({ _id: new ObjectId(request.session.user?.id) });

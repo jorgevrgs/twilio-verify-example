@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-col">
-    <h1>Register</h1>
+    <h1>Change Password</h1>
 
     <ChangePasswordForm />
   </section>

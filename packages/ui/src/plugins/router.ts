@@ -29,19 +29,19 @@ const routes: RouterOptions['routes'] = [
         path: 'profile',
         name: 'Profile',
         component: () => import('@/pages/ProfilePage.vue'),
-        meta: { canAccess: 'onlyAllowed' },
+        meta: { canAccess: 'onlyAuth' },
       },
       {
         path: 'profile/change-password',
         name: 'ChangePassword',
         component: () => import('@/pages/ChangePasswordPage.vue'),
-        meta: { canAccess: 'onlyAllowed' },
+        meta: { canAccess: 'onlyAuth' },
       },
       {
         path: 'verification',
         name: 'Verification',
         component: () => import('@/pages/VerificationPage.vue'),
-        meta: { canAccess: 'onlyAuth' },
+        meta: { canAccess: 'onlyForm' },
       },
     ],
   },
@@ -53,6 +53,10 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
+  console.log(
+    `Running guard from ${from.name?.toString()} to ${to.name?.toString()}`
+  );
+
   const authStore = useAuthStore();
   try {
     await authStore.getCurrentUser();
@@ -60,40 +64,51 @@ router.beforeEach(async (to, from) => {
     // Ignore error
   }
 
+  console.log('Current store', authStore.formData, authStore.action);
+
   /**
-   * If the user is not authenticated and the route requires authentication, redirect to the login page
+   * Check access
    */
   const requiresAuth = to.matched.some(
     (record) => record.meta.canAccess === 'onlyAuth'
   );
-
-  if (requiresAuth && !authStore.isAuthenticated) {
-    return { name: 'Login' };
-  }
-
-  /**
-   * Access to protected pages redirects to the verification page for MFA enabled users
-   */
-  const requiresPermission = to.matched.some(
-    (record) => record.meta.canAccess === 'onlyAllowed'
-  );
-
-  if (requiresPermission && !authStore.isAuthenticated) {
-    return { name: 'Login' };
-  }
-
-  if (requiresPermission && authStore.isVerificationRequired) {
-    return { name: 'Verification', query: { redirect: to.fullPath } };
-  }
-
-  /**
-   * Access to login/register redirects to profile page
-   */
   const requiresGuest = to.matched.some(
     (record) => record.meta.canAccess === 'onlyGuest'
   );
+  const requiresForm = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyForm'
+  );
+
+  console.log({
+    requiresAuth,
+    requiresGuest,
+    requiresForm,
+    isAuthenticated: authStore.isAuthenticated,
+    formData: authStore.formData,
+    action: authStore.action,
+    boolFormData: !Boolean(authStore.formData),
+  });
+
+  // If the form is not generated, redirecto to the origin page
+  if (requiresForm && !Boolean(authStore.formData)) {
+    console.log('Guard 1');
+    return from.fullPath;
+  }
+
+  if (requiresAuth && !authStore.isAuthenticated) {
+    console.log('Guard 2');
+    return { name: 'Login' };
+  }
+
+  if (requiresAuth && authStore.verificationState === 'pending') {
+    console.log('Guard 3');
+    return { name: 'Verification', query: { redirect: to.fullPath } };
+  }
 
   if (requiresGuest && authStore.isAuthenticated) {
+    console.log('Guard 4');
     return { name: 'Profile' };
   }
+
+  console.log('Guard 5');
 });

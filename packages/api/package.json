@@ -26,7 +26,6 @@
     "@fastify/session": "10.0.0",
     "@fastify/type-provider-typebox": "2.3.0",
     "@sinclair/typebox": "0.24.42",
-    "@types/lodash.omit": "4.5.7",
     "bcryptjs": "2.4.3",
     "fastify": "4.6.0",
     "fastify-cli": "5.4.2",
@@ -38,6 +37,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "2.4.2",
+    "@types/lodash.omit": "4.5.7",
     "@types/lodash.pick": "4.4.7",
     "@types/node": "18.7.18",
     "concurrently": "7.4.0",

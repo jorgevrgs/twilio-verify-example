@@ -37,7 +37,6 @@ export interface Factor {
 
 export type UserState = Omit<RegisterFormData, 'password' | 'channel'> & {
   id: string;
-  isPhoneNumberVerified: boolean;
   defaultChannel: 'sms' | 'call';
 };
 

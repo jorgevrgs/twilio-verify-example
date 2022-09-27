@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import { computed, inject, reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores';
+import { AsyncActions, useAuthStore } from '../stores';
 import { LoginFormData } from '../types';
 
-const router = useRouter();
 const authStore = useAuthStore();
-const toast = inject<ToasterHandler>('toast');
+const router = useRouter();
 
 const defaultFormData: LoginFormData = {
   username: '',
@@ -23,32 +21,9 @@ const isValidForm = computed(() => {
 });
 
 // Methods
-const onSubmit = async (e: Event) => {
-  console.log('onSubmit');
-
-  e.preventDefault();
-
-  await authStore.logInUser(formData);
-
-  if (authStore.error) {
-    toast?.warning(
-      'Please try again, log in instead, or contact our customer support team if the problem persists.'
-    );
-    toast?.error(authStore.error);
-  } else {
-    if (authStore.user?.enableMFA) {
-      toast?.success(
-        'Redirecting to verification page... Please wait a few seconds while you receive the verification code.'
-      );
-    } else {
-      toast?.success('User signed in successfully!');
-    }
-
-    router.push({ name: 'Profile' });
-  }
-
-  // Reset forms
-  Object.assign(formData, defaultFormData);
+const onSubmit = async () => {
+  await authStore.dispatchAsyncForm(formData, AsyncActions.LOGIN);
+  router.push({ name: 'Verification' });
 };
 </script>
 

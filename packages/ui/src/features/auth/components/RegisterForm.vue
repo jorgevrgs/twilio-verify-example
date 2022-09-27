@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { CountryCode } from 'libphonenumber-js';
-import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazSelect from 'maz-ui/components/MazSelect';
 import MazSwitch from 'maz-ui/components/MazSwitch';
-import { computed, inject, reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores';
+import { AsyncActions, useAuthStore } from '../stores';
 import { RegisterFormData } from '../types';
 
 interface PhoneNumberDetails {
@@ -23,9 +22,8 @@ interface PhoneNumberDetails {
   e164: string;
 }
 
-const router = useRouter();
 const authStore = useAuthStore();
-const toast = inject<ToasterHandler>('toast');
+const router = useRouter();
 
 const defaultCountryCode: CountryCode = 'CO';
 const channels = [
@@ -70,26 +68,15 @@ const isValidForm = computed(() => {
 });
 
 // Methods
-const onSubmit = async (e: Event) => {
-  await authStore.registerUser({
-    ...formData,
-    phoneNumber: phoneNumberDetails.e164,
-  });
-
-  if (authStore.error) {
-    toast?.info(
-      'Please try again, log in instead, or contact our customer support team if the problem persists.'
-    );
-    toast?.error(authStore.error);
-  } else {
-    toast?.success('User registered successfully!');
-
-    router.push({ name: 'Profile' });
-  }
-
-  // Reset forms
-  Object.assign(formData, defaultFormData);
-  Object.assign(phoneNumberDetails, defaultPhoneNumberDetails);
+const onSubmit = async () => {
+  authStore.dispatchAsyncForm(
+    {
+      ...formData,
+      phoneNumber: phoneNumberDetails.e164,
+    },
+    AsyncActions.REGISTER
+  );
+  router.push({ name: 'Verification' });
 };
 
 const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {

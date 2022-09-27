@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import { computed, inject, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores';
+import { AsyncActions, useAuthStore } from '../stores';
+import { ChangePasswordFormData } from '../types';
 
-const router = useRouter();
 const authStore = useAuthStore();
-const toast = inject<ToasterHandler>('toast');
+const router = useRouter();
 
 const username = ref('');
-const defaultFormData = {
+const defaultFormData: ChangePasswordFormData = {
   currentPassword: '',
   newPassword: '',
   confirmPassword: '',
 };
 
-const formData = reactive(defaultFormData);
+const formData = reactive<ChangePasswordFormData>(defaultFormData);
 
 // Computed
 const isValidForm = computed(() => {
@@ -36,28 +35,9 @@ const arePasswordsValid = computed(() => {
 });
 
 // Methods
-const onSubmit = async (e: Event) => {
-  await authStore.changePassword(formData);
-
-  if (authStore.error) {
-    toast?.warning(
-      'Please try again, log in instead, or contact our customer support team if the problem persists.'
-    );
-    toast?.error(authStore.error);
-  } else {
-    if (authStore.user?.enableMFA) {
-      toast?.success(
-        'Redirecting to verification page... Please wait a few seconds while you receive the verification code.'
-      );
-    } else {
-      toast?.success('Password updated successfully!');
-    }
-
-    router.push({ name: 'Profile' });
-  }
-
-  // Reset forms
-  Object.assign(formData, defaultFormData);
+const onSubmit = async () => {
+  await authStore.dispatchAsyncForm(formData, AsyncActions.CHANGE_PASSWORD);
+  router.push({ name: 'Verification' });
 };
 
 // Lifecycle

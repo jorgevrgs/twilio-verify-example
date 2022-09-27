@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Static, Type } from '@sinclair/typebox';
 
 export const changePassword = {
   body: Type.Object({
@@ -16,3 +16,14 @@ export const changePassword = {
     }),
   }),
 };
+
+export const userByUsernameSchema = {
+  params: Type.Object({
+    username: Type.String({
+      minLength: 1,
+      examples: ['john'],
+    }),
+  }),
+};
+
+export type UsernameParams = Static<typeof userByUsernameSchema.params>;

@@ -12,9 +12,7 @@ export class UserDto {
   'enableMFA': boolean;
   'factor'?: CreateFactor;
   'id': string;
-  'isPhoneNumberVerified': boolean = false;
   'phoneNumber': string;
-  'status': 'unconfirmed' | 'confirmed' = 'unconfirmed';
   'username': string;
   'verification'?: CreateVerificationDto;
 

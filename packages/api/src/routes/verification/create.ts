@@ -8,7 +8,6 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.route({
     url: '/create',
     method: 'POST',
-    preHandler: fastify.auth([fastify.isAuthenticated]),
     handler: async function (request, reply) {
       const currentUser = await request.db
         ?.collection('users')

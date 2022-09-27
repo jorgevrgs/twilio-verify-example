@@ -27,7 +27,6 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         username: request.body.username,
         password: hashedPassword,
         phoneNumber: request.body.phoneNumber,
-        isPhoneNumberVerified: false,
         enableMFA: request.body.enableMFA,
       });
 
