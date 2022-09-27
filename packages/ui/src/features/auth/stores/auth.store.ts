@@ -3,16 +3,19 @@ import { defineStore } from 'pinia';
 import { httpClient } from '../../../utils/http-client';
 import {
   ErrorResponse,
+  Factor,
   LoginFormData,
   RegisterFormData,
-  User,
+  UserResponse,
+  UserState,
   Verification,
   VerifyCodeFormData,
 } from '../types';
 
 export interface AuthState {
-  user?: User;
+  user?: UserState;
   verification?: Verification;
+  factor?: Factor;
   isLoading: boolean;
   error?: string;
 }
@@ -20,6 +23,7 @@ export interface AuthState {
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     error: undefined,
+    factor: undefined,
     isLoading: false,
     user: undefined,
     verification: undefined,
@@ -27,13 +31,9 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     /**
-     * Determine if the user should be redirected to the verification page
+     * Determine if the verification should display the code input
      */
-    isPhoneVerificationRequired: ({ user }) => {
-      return Boolean(user?.enableMFA) && Boolean(!user?.isPhoneNumberVerified);
-    },
-
-    isPhoneVerificationInProgress: ({ user, verification }) => {
+    isPhoneVerificationInProgress: ({ verification }) => {
       return verification?.status === 'pending';
     },
 
@@ -41,8 +41,9 @@ export const useAuthStore = defineStore('auth', {
      * Determine if the verification code is required in the verification page
      */
     isVerificationRequired: ({ user, verification }) => {
-      return Boolean(
-        user?.enableMFA && (!verification || verification?.status === 'pending')
+      return (
+        Boolean(user?.enableMFA) &&
+        (!verification || verification?.status === 'pending')
       );
     },
 
@@ -53,15 +54,36 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
+    async getCurrentUser() {
+      this.isLoading = true;
+      await httpClient
+        .get<UserResponse, AxiosResponse<UserResponse, ErrorResponse>>(
+          '/api/users/me'
+        )
+        .then(({ data }) => {
+          const { verification, factor, ...user } = data;
+
+          this.user = user;
+          this.verification = verification;
+          this.factor = factor;
+        })
+        .catch((err) => {
+          this.error = err.response.data.message;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
     async registerUser(formData: RegisterFormData) {
       this.isLoading = true;
       this.error = undefined;
 
       await httpClient
-        .post<User, AxiosResponse<User, ErrorResponse>, RegisterFormData>(
-          '/api/auth/register',
-          formData
-        )
+        .post<
+          UserState,
+          AxiosResponse<UserState, ErrorResponse>,
+          RegisterFormData
+        >('/api/auth/register', formData)
         .then((res) => {
           this.user = res.data;
           localStorage.setItem('user', JSON.stringify(res.data));
@@ -109,7 +131,12 @@ export const useAuthStore = defineStore('auth', {
         .then((res) => {
           this.verification = res.data;
           if (this.user) {
-            this.user.isPhoneNumberVerified = true;
+            this.$patch({
+              user: {
+                ...this.user,
+                isPhoneNumberVerified: true,
+              },
+            });
           }
         })
         .catch((err) => {
@@ -125,7 +152,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = undefined;
 
       await httpClient
-        .post<User, AxiosResponse<User, ErrorResponse>>(
+        .post<UserState, AxiosResponse<UserState, ErrorResponse>>(
           '/api/auth/login',
           formData
         )

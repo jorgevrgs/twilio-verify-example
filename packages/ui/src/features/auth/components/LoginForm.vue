@@ -2,7 +2,7 @@
 import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
 import MazInput from 'maz-ui/components/MazInput';
-import { computed, inject, onMounted, reactive } from 'vue';
+import { computed, inject, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores';
 import { LoginFormData } from '../types';
@@ -50,13 +50,6 @@ const onSubmit = async (e: Event) => {
   // Reset forms
   Object.assign(formData, defaultFormData);
 };
-
-// Lifecycle
-onMounted(() => {
-  if (authStore.isPhoneVerificationInProgress) {
-    router.push({ name: 'Verification' });
-  }
-});
 </script>
 
 <template>

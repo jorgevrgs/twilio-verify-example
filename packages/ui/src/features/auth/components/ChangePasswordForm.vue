@@ -66,10 +66,6 @@ const onSubmit = async (e: Event) => {
 
 // Lifecycle
 onMounted(() => {
-  if (authStore.isPhoneVerificationInProgress) {
-    router.push({ name: 'Verification' });
-  }
-
   if (authStore.user) {
     username.value = authStore.user.username;
   }

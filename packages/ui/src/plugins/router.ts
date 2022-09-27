@@ -1,8 +1,6 @@
 import DefaultLayout from '@/layouts/default.vue';
 import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
 import { useAuthStore } from '../features/auth/stores';
-import { User } from '../features/auth/types';
-import { httpClient } from '../utils/http-client';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -57,10 +55,7 @@ export const router = createRouter({
 router.beforeEach(async (to, from) => {
   const authStore = useAuthStore();
   try {
-    const { data: authenticatedUser } = await httpClient.get<User>(
-      '/api/users/me'
-    );
-    authStore.$patch({ user: authenticatedUser });
+    await authStore.getCurrentUser();
   } catch (error) {
     // Ignore error
   }
@@ -82,6 +77,10 @@ router.beforeEach(async (to, from) => {
   const requiresPermission = to.matched.some(
     (record) => record.meta.canAccess === 'onlyAllowed'
   );
+
+  if (requiresPermission && !authStore.isAuthenticated) {
+    return { name: 'Login' };
+  }
 
   if (requiresPermission && authStore.isVerificationRequired) {
     return { name: 'Verification', query: { redirect: to.fullPath } };

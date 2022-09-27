@@ -25,7 +25,17 @@
 
         <div class="flex w-full">
           <dt class="flex-1">Password</dt>
-          <dd class="flex-1 tracking-widest">********</dd>
+          <dd class="flex-1 tracking-widest">
+            ********
+            <MazBtn :to="{ name: 'ChangePassword' }" size="mini">
+              <MazIcon
+                name="pencil"
+                size="0.75rem"
+                aria-label="Change Password"
+              />
+              <span class="ml-1">Change Password</span>
+            </MazBtn>
+          </dd>
         </div>
       </section>
 

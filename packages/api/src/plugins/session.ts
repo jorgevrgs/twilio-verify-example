@@ -22,6 +22,10 @@ declare module 'fastify' {
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
+    hasVerificationInProgress: (
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) => Promise<void>;
   }
   interface Session {
     user?: UserDto;
@@ -56,17 +60,33 @@ export default fp(
         }
       )
       .decorate(
-        'hasPermission',
+        'hasVerificationInProgress',
         async (request: FastifyRequest, reply: FastifyReply) => {
           request.log.info('hasPermission', request.session.user);
 
-          if (!request.session.user?.verification) {
+          if (!request.session.verification) {
             throw reply.unauthorized(
               'You must have a verification in progress'
             );
           }
 
-          if (request.session.user.verification.status === 'pending') {
+          if (request.session.verification.status === 'pending') {
+            throw reply.unauthorized('You haven not verified your request');
+          }
+        }
+      )
+      .decorate(
+        'hasPermission',
+        async (request: FastifyRequest, reply: FastifyReply) => {
+          request.log.info('hasPermission', request.session.user);
+
+          if (!request.session.verification) {
+            throw reply.unauthorized(
+              'You must have a verification in progress'
+            );
+          }
+
+          if (request.session.verification.status === 'pending') {
             throw reply.unauthorized('You haven not verified your request');
           }
         }

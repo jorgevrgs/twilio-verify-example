@@ -1,8 +1,6 @@
-import { ObjectId } from '@fastify/mongodb';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { FastifyPluginAsync } from 'fastify';
 import { UserDto } from '../../dtos';
-import { UpdateUserDto } from '../../dtos/update-user.dto';
 import { loginSchema } from '../../schemas/auth.schema';
 
 const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
@@ -33,29 +31,9 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         throw reply.notFound('Username or password is incorrect');
       }
 
-      const usertToUpdate = new UpdateUserDto();
+      const response = new UserDto(existingUser);
 
-      request.log.info({ usertToUpdate });
-
-      const updatedUser = await request.db
-        ?.collection('users')
-        .findOneAndUpdate(
-          { _id: new ObjectId(existingUser._id) },
-          {
-            $set: {
-              verification: usertToUpdate.verification,
-            },
-          },
-          { returnDocument: 'after' }
-        );
-
-      if (!updatedUser?.value?._id.toString()) {
-        throw reply.internalServerError('Failed to update user');
-      }
-
-      request.log.info({ updatedUser });
-
-      const response = new UserDto(updatedUser.value);
+      request.log.info({ response });
 
       // Store user in session
       request.session.user = response;

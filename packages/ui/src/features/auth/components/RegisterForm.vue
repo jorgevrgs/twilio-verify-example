@@ -6,7 +6,7 @@ import MazInput from 'maz-ui/components/MazInput';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
 import MazSelect from 'maz-ui/components/MazSelect';
 import MazSwitch from 'maz-ui/components/MazSwitch';
-import { computed, inject, onMounted, reactive } from 'vue';
+import { computed, inject, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores';
 import { RegisterFormData } from '../types';
@@ -95,13 +95,6 @@ const onSubmit = async (e: Event) => {
 const onPhoneNumberUpdate = (event: PhoneNumberDetails) => {
   Object.assign(phoneNumberDetails, event);
 };
-
-// Lifecycle
-onMounted(() => {
-  if (authStore.isPhoneVerificationInProgress) {
-    router.push({ name: 'Verification' });
-  }
-});
 </script>
 
 <template>

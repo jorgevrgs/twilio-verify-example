@@ -23,11 +23,22 @@ export interface Verification {
   valid: boolean;
 }
 
-export type User = Omit<RegisterFormData, 'password' | 'channel'> & {
+export interface Factor {
+  sid: string;
+  type: string;
+  status: string;
+}
+
+export type UserState = Omit<RegisterFormData, 'password' | 'channel'> & {
   id: string;
   isPhoneNumberVerified: boolean;
   defaultChannel: 'sms' | 'call';
 };
+
+export interface UserResponse extends UserState {
+  verification?: Verification;
+  factor?: Factor;
+}
 
 export interface ErrorResponse {
   statusCode: number;

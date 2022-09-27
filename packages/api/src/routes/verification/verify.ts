@@ -9,7 +9,10 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     url: '/verify',
     method: 'POST',
     schema: verifyCodeSchema,
-    preHandler: fastify.auth([fastify.isAuthenticated, fastify.hasPermission]),
+    preHandler: fastify.auth([
+      fastify.isAuthenticated,
+      fastify.hasVerificationInProgress,
+    ]),
     handler: async function (
       request: FastifyRequest<{
         Body: VerifyCodeBody;
@@ -34,6 +37,14 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
       request.log.info({ response });
       request.session.verification = response;
+
+      // update user isPhoneNumberVerified
+      await request.db
+        ?.collection('users')
+        .updateOne(
+          { _id: new ObjectId(request.session.user?.id) },
+          { $set: { isPhoneNumberVerified: true } }
+        );
 
       return response;
     },
