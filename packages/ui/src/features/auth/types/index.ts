@@ -14,6 +14,12 @@ export interface VerifyCodeFormData {
   sid: string;
 }
 
+export interface ChangePasswordFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export interface Verification {
   sid: string;
   channel: 'sms' | 'call';

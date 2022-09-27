@@ -6,7 +6,10 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   fastify.route({
     url: '/change-password',
     method: 'PATCH',
-    preHandler: fastify.auth([fastify.isAuthenticated]),
+    preHandler: fastify.auth([
+      fastify.isAuthenticated,
+      fastify.hasApprovedVerification,
+    ]),
     handler: async (
       request: FastifyRequest<{
         Body: {

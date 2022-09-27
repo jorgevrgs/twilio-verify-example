@@ -2,6 +2,7 @@ import type { AxiosResponse } from 'axios';
 import { defineStore } from 'pinia';
 import { httpClient } from '../../../utils/http-client';
 import {
+  ChangePasswordFormData,
   ErrorResponse,
   Factor,
   LoginFormData,
@@ -179,6 +180,24 @@ export const useAuthStore = defineStore('auth', {
         .finally(() => {
           this.isLoading = false;
           this.$reset();
+        });
+    },
+
+    async changePassword(formData: ChangePasswordFormData) {
+      this.isLoading = true;
+      this.error = undefined;
+
+      await httpClient
+        .patch<
+          null,
+          AxiosResponse<null, ErrorResponse>,
+          ChangePasswordFormData
+        >('/api/auth/change-password', formData)
+        .catch((err) => {
+          this.error = err.response.data.message;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },

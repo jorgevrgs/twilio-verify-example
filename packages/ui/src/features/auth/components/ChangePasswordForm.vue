@@ -37,11 +37,7 @@ const arePasswordsValid = computed(() => {
 
 // Methods
 const onSubmit = async (e: Event) => {
-  console.log('onSubmit');
-
-  e.preventDefault();
-
-  // await authStore.changePassword(formData);
+  await authStore.changePassword(formData);
 
   if (authStore.error) {
     toast?.warning(
@@ -54,7 +50,7 @@ const onSubmit = async (e: Event) => {
         'Redirecting to verification page... Please wait a few seconds while you receive the verification code.'
       );
     } else {
-      toast?.success('User signed in successfully!');
+      toast?.success('Password updated successfully!');
     }
 
     router.push({ name: 'Profile' });
@@ -75,10 +71,11 @@ onMounted(() => {
 <template>
   <form class="flex flex-col gap-4 mt-8">
     <input
-      type="hidden"
+      type="text"
+      class="hidden"
       name="username"
       id="username"
-      v-model="username"
+      :value="username"
       autocomplete="username"
     />
 

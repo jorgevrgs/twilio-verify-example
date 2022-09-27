@@ -18,7 +18,7 @@ declare module 'fastify' {
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
-    hasPermission: (
+    hasApprovedVerification: (
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
@@ -76,18 +76,16 @@ export default fp(
         }
       )
       .decorate(
-        'hasPermission',
+        'hasApprovedVerification',
         async (request: FastifyRequest, reply: FastifyReply) => {
-          request.log.info('hasPermission', request.session.user);
+          request.log.info('hasApprovedVerification', request.session.user);
 
-          if (!request.session.verification) {
-            throw reply.unauthorized(
-              'You must have a verification in progress'
-            );
-          }
-
-          if (request.session.verification.status === 'pending') {
-            throw reply.unauthorized('You haven not verified your request');
+          // Only runs for logged in users with MFA enabled
+          if (
+            request.session.user?.enableMFA &&
+            request.session.verification?.status === 'approved'
+          ) {
+            throw reply.forbidden('You must have permission to access this');
           }
         }
       );
