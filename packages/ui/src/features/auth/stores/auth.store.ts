@@ -230,8 +230,8 @@ export const useAuthStore = defineStore('auth', {
           this.verification = verification;
           this.factor = factor;
         })
-        .catch((err) => {
-          console.log(err.response.data.message);
+        .catch((_err) => {
+          // Ignore error;
         })
         .finally(() => {
           this.isLoading = false;

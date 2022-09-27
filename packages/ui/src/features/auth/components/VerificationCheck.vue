@@ -138,7 +138,6 @@ onBeforeMount(() => {
   timer.value = setInterval(() => {
     if (secondsToExpire.value <= 0) {
       clearInterval(timer.value);
-      console.log('timer expired', secondsToExpire.value);
     } else {
       secondsToExpire.value--;
     }
