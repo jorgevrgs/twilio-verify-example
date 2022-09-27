@@ -1,8 +1,5 @@
 <template>
-  <form
-    v-if="authStore.isPhoneVerificationInProgress"
-    class="flex flex-col gap-4 mt-8"
-  >
+  <form class="flex flex-col gap-4 mt-8">
     <div class="p-4 bg-blue-200">
       <MazIcon name="information-circle" size="1rem" />
       {{ authStore.verification?.channel === 'sms' ? 'A message' : 'A call' }}
@@ -45,9 +42,6 @@
       >
     </div>
   </form>
-  <div v-else class="flex justify-center items-center">
-    <BounceLoader />
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -66,7 +60,6 @@ import {
   ref,
 } from 'vue';
 import { useRouter } from 'vue-router';
-import BounceLoader from 'vue-spinner/src/BounceLoader.vue';
 import { getSecondsToExpire } from '../../../utils/dates';
 import { hidePartOfString } from '../../../utils/strings';
 import { useAuthStore } from '../stores';

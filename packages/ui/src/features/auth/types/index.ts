@@ -8,10 +8,15 @@ export interface RegisterFormData {
 
 export type LoginFormData = Pick<RegisterFormData, 'username' | 'password'>;
 
+export interface CreateCodeForm {
+  phoneNumber: string;
+  channel?: 'sms' | 'call';
+}
+
 export interface VerifyCodeFormData {
   verificationCode: string;
-  phoneNumber: string;
-  sid: string;
+  phoneNumber?: string;
+  sid?: string;
 }
 
 export interface ChangePasswordFormData {

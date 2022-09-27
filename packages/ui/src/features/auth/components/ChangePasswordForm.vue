@@ -40,6 +40,10 @@ const onSubmit = async () => {
   router.push({ name: 'Verification' });
 };
 
+async function onReset() {
+  router.push({ name: 'Profile' });
+}
+
 // Lifecycle
 onMounted(() => {
   if (authStore.user) {
@@ -94,7 +98,15 @@ onMounted(() => {
       required
     />
 
-    <div class="flex justify-end">
+    <div class="flex justify-end gap-8">
+      <MazBtn
+        type="button"
+        color="danger"
+        :disabled="authStore.isLoading"
+        @click.prevent="onReset"
+        >Cancel</MazBtn
+      >
+
       <MazBtn
         @click.prevent="onSubmit"
         type="submit"

@@ -53,18 +53,12 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  console.log(
-    `Running guard from ${from.name?.toString()} to ${to.name?.toString()}`
-  );
-
   const authStore = useAuthStore();
   try {
     await authStore.getCurrentUser();
   } catch (error) {
     // Ignore error
   }
-
-  console.log('Current store', authStore.formData, authStore.action);
 
   /**
    * Check access
@@ -79,36 +73,20 @@ router.beforeEach(async (to, from) => {
     (record) => record.meta.canAccess === 'onlyForm'
   );
 
-  console.log({
-    requiresAuth,
-    requiresGuest,
-    requiresForm,
-    isAuthenticated: authStore.isAuthenticated,
-    formData: authStore.formData,
-    action: authStore.action,
-    boolFormData: !Boolean(authStore.formData),
-  });
-
   // If the form is not generated, redirecto to the origin page
   if (requiresForm && !Boolean(authStore.formData)) {
-    console.log('Guard 1');
     return from.fullPath;
   }
 
   if (requiresAuth && !authStore.isAuthenticated) {
-    console.log('Guard 2');
     return { name: 'Login' };
   }
 
   if (requiresAuth && authStore.verificationState === 'pending') {
-    console.log('Guard 3');
     return { name: 'Verification', query: { redirect: to.fullPath } };
   }
 
   if (requiresGuest && authStore.isAuthenticated) {
-    console.log('Guard 4');
     return { name: 'Profile' };
   }
-
-  console.log('Guard 5');
 });

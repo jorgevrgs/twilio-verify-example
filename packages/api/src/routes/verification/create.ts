@@ -1,27 +1,40 @@
-import { ObjectId } from '@fastify/mongodb';
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
+import type { VerificationListInstanceCreateOptions } from 'twilio/lib/rest/verify/v2/service/verification';
 import { CreateVerificationDto } from '../../dtos';
-import { channel } from '../../schemas/auth.schema';
+import {
+  CreateVerificationBody,
+  CreateVerificationParams,
+  createVerificationSchema,
+} from '../../schemas';
 
 const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   // Creates a verification
   fastify.route({
-    url: '/create',
+    url: '/create/:username',
     method: 'POST',
-    handler: async function (request, reply) {
-      const currentUser = await request.db
-        ?.collection('users')
-        .findOne({ _id: new ObjectId(request.session.user?.id) });
+    schema: createVerificationSchema,
+    handler: async function (
+      request: FastifyRequest<{
+        Params: CreateVerificationParams;
+        Body: CreateVerificationBody;
+      }>,
+      reply: FastifyReply
+    ) {
+      const opts = {} as VerificationListInstanceCreateOptions;
+      const { username } = request.params;
+      const { phoneNumber, channel } = request.body;
 
-      if (!currentUser) {
-        throw reply.notFound('User not found');
+      const user = await request.db?.collection('users').findOne({ username });
+
+      if (!user && (!channel || !phoneNumber)) {
+        throw reply.badRequest('Missing channel or phone number');
       }
 
+      opts.channel = user?.defaultChannel || channel;
+      opts.to = user?.phoneNumber || phoneNumber;
+
       const createdVerification =
-        await request.twilioVerify.verifications.create({
-          to: currentUser.phoneNumber,
-          channel: currentUser.channel || channel.sms,
-        });
+        await request.twilioVerify.verifications.create(opts);
 
       request.log.info({ createdVerification });
 

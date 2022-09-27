@@ -1,24 +1,43 @@
 import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
+import { VerificationCheckListInstanceCreateOptions } from 'twilio/lib/rest/verify/v2/service/verificationCheck';
 import { CreateVerificationDto } from '../../dtos';
-import { VerifyCodeBody, verifyCodeSchema } from '../../schemas';
+import {
+  VerificationCodeParams,
+  VerifyCodeBody,
+  verifyCodeSchema,
+} from '../../schemas';
 
 const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   // Creates a verification
   fastify.route({
-    url: '/verify',
+    url: '/verify/:username',
     method: 'POST',
     schema: verifyCodeSchema,
     handler: async function (
       request: FastifyRequest<{
+        Params: VerificationCodeParams;
         Body: VerifyCodeBody;
       }>,
       reply: FastifyReply
     ) {
+      const opts: VerificationCheckListInstanceCreateOptions = {};
+
+      const { username } = request.params;
+      const { verificationCode, phoneNumber, sid } = request.body;
+
+      const user = await request.db?.collection('users').findOne({ username });
+
+      if (!user && (!phoneNumber || !verificationCode || !sid)) {
+        throw reply.badRequest(
+          'Missing phone number, verification code, or sid'
+        );
+      }
+
+      opts.to = user?.phoneNumber || phoneNumber;
+      opts.code = user?.verificationCode || verificationCode;
+
       const verificationCheckResult =
-        await request.twilioVerify.verificationChecks.create({
-          to: request.body.phoneNumber,
-          code: request.body.verificationCode,
-        });
+        await request.twilioVerify.verificationChecks.create(opts);
 
       const response = new CreateVerificationDto(verificationCheckResult);
 

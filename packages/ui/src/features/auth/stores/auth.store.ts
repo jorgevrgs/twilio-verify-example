@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { httpClient } from '../../../utils/http-client';
 import {
   ChangePasswordFormData,
+  CreateCodeForm,
   ErrorResponse,
   Factor,
   LoginFormData,
@@ -25,34 +26,92 @@ export type AsyncFormData =
   | RegisterFormData;
 
 export interface AuthState<F> {
-  user?: UserState;
-  verification?: Verification;
-  factor?: Factor;
-  isLoading: boolean;
-  error?: string;
-  success?: string;
-  formData?: F;
   action?: AsyncActions;
+  /**
+   * @description The error message to show to the user
+   */
+  error?: string;
+
+  factor?: Factor;
+
+  formData?: F;
+
+  isLoading: boolean;
+
+  isVerificationRequired: boolean;
+
+  /**
+   * @description The success me
+   */
+  success?: string;
+
+  /**
+   * @description The user object
+   */
+  user?: UserState;
+
+  /**
+   * @description The verification object returned from the API
+   */
+
+  verification?: Verification;
+
+  /**
+   * @description Handle the verification state during the request process
+   */
   verificationState: 'idle' | 'pending' | 'success' | 'error';
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState<AsyncFormData> => ({
+    action: undefined,
     error: undefined,
-    success: undefined,
     factor: undefined,
+    formData: undefined,
     isLoading: false,
+    isVerificationRequired: false,
+    success: undefined,
     user: undefined,
     verification: undefined,
-    formData: undefined,
-    action: undefined,
     verificationState: 'idle',
   }),
 
   getters: {
     isAuthenticated: ({ user }) => user?.id !== undefined,
+    isVerified: ({ verification }) => Boolean(verification?.valid),
+    currentUsername: ({ formData, user }) => {
+      if (formData && 'username' in formData && formData?.username) {
+        return formData.username;
+      }
 
-    isVerified: ({ verification }) => verification?.valid,
+      if (user?.username) {
+        return user.username;
+      }
+
+      return undefined;
+    },
+    currentChannel: ({ formData, user }) => {
+      if (formData && 'channel' in formData && formData?.channel) {
+        return formData.channel;
+      }
+
+      if (user?.defaultChannel) {
+        return user.defaultChannel;
+      }
+
+      return undefined;
+    },
+    currentPhoneNumber: ({ formData, user }) => {
+      if (formData && 'phoneNumber' in formData && formData?.phoneNumber) {
+        return formData.phoneNumber;
+      }
+
+      if (user?.phoneNumber) {
+        return user.phoneNumber;
+      }
+
+      return undefined;
+    },
   },
 
   actions: {
@@ -66,34 +125,6 @@ export const useAuthStore = defineStore('auth', {
       this.action = undefined;
     },
 
-    async checkVerification() {
-      switch (this.action) {
-        case AsyncActions.REGISTER:
-          this.verificationState =
-            this.formData &&
-            'enableMFA' in this.formData &&
-            this.formData.enableMFA
-              ? 'pending'
-              : 'success';
-          break;
-        case AsyncActions.LOGIN:
-          const username =
-            this.formData && 'username' in this.formData
-              ? this.formData.username
-              : '';
-          const isMFAEnabled = await httpClient
-            .get<Pick<UserResponse, 'id' | 'enableMFA'>>(
-              `/api/users/${encodeURIComponent(username)}`
-            )
-            .then(({ data }) => data.enableMFA);
-          this.verificationState = isMFAEnabled ? 'pending' : 'success';
-          break;
-        case AsyncActions.CHANGE_PASSWORD:
-          this.verificationState = this.user?.enableMFA ? 'pending' : 'success';
-          break;
-      }
-    },
-
     async dispatchAsyncForm(formData: AsyncFormData, action: AsyncActions) {
       this.isLoading = true;
       this.error = undefined;
@@ -104,6 +135,39 @@ export const useAuthStore = defineStore('auth', {
       await this.checkVerification();
 
       this.isLoading = false;
+    },
+
+    async checkVerification() {
+      switch (this.action) {
+        case AsyncActions.REGISTER:
+          const registerformData = this.formData as RegisterFormData;
+
+          this.verificationState = registerformData.enableMFA
+            ? 'pending'
+            : 'success';
+          this.isVerificationRequired = registerformData.enableMFA;
+          break;
+        case AsyncActions.LOGIN:
+          const loginformData = this.formData as LoginFormData;
+          const username = loginformData.username;
+          const isMFAEnabled = await httpClient
+            .get<Pick<UserResponse, 'id' | 'enableMFA'>>(
+              `/api/users/${encodeURIComponent(username)}`
+            )
+            .then(({ data }) => data.enableMFA)
+            .catch(() => {
+              this.error = 'Username or password is incorrect';
+              return false;
+            });
+
+          this.verificationState = isMFAEnabled ? 'pending' : 'success';
+          this.isVerificationRequired = isMFAEnabled;
+          break;
+        case AsyncActions.CHANGE_PASSWORD:
+          this.verificationState = this.user?.enableMFA ? 'pending' : 'success';
+          this.isVerificationRequired = Boolean(this.user?.enableMFA);
+          break;
+      }
     },
 
     async executeAsyncForm() {
@@ -167,7 +231,7 @@ export const useAuthStore = defineStore('auth', {
           this.factor = factor;
         })
         .catch((err) => {
-          this.error = err.response.data.message;
+          console.log(err.response.data.message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -200,15 +264,19 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true;
       this.error = undefined;
 
+      let formData = {
+        phoneNumber: this.currentPhoneNumber,
+        channel: this.currentChannel,
+      } as CreateCodeForm;
+
       await httpClient
         .post<
           Verification,
           AxiosResponse<Verification, ErrorResponse>,
-          undefined
-        >('/api/verification/create')
-        .then((res) => {
-          this.verification = res.data;
-          localStorage.setItem('user', JSON.stringify(res.data));
+          CreateCodeForm
+        >(`/api/verification/create/${this.currentUsername}`, formData)
+        .then(({ data }) => {
+          this.verification = data;
         })
         .catch((err) => {
           this.error = err.response.data.message;
@@ -227,8 +295,9 @@ export const useAuthStore = defineStore('auth', {
           Verification,
           AxiosResponse<Verification, ErrorResponse>,
           VerifyCodeFormData
-        >('/api/verification/verify', formData)
+        >(`/api/verification/verify/${this.currentUsername}`, formData)
         .then((res) => {
+          this.verificationState = 'success';
           this.verification = res.data;
           if (this.user) {
             this.$patch({
@@ -237,6 +306,7 @@ export const useAuthStore = defineStore('auth', {
           }
         })
         .catch((err) => {
+          this.verificationState = 'error';
           this.error = err.response.data.message;
         })
         .finally(() => {
