@@ -17,7 +17,10 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         throw reply.notFound('User not found');
       }
 
-      return new UserDto(user);
+      return new UserDto({
+        ...user,
+        verification: request.session.verification,
+      });
     }
   );
 };

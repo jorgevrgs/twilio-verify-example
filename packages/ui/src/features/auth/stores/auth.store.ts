@@ -6,20 +6,23 @@ import {
   LoginFormData,
   RegisterFormData,
   User,
+  Verification,
   VerifyCodeFormData,
 } from '../types';
 
 export interface AuthState {
   user?: User;
+  verification?: Verification;
   isLoading: boolean;
   error?: string;
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    user: undefined,
-    isLoading: false,
     error: undefined,
+    isLoading: false,
+    user: undefined,
+    verification: undefined,
   }),
 
   getters: {
@@ -30,16 +33,16 @@ export const useAuthStore = defineStore('auth', {
       return Boolean(user?.enableMFA) && Boolean(!user?.isPhoneNumberVerified);
     },
 
-    isPhoneVerificationInProgress: ({ user }) => {
-      return user?.verification?.status === 'pending';
+    isPhoneVerificationInProgress: ({ user, verification }) => {
+      return verification?.status === 'pending';
     },
 
     /**
      * Determine if the verification code is required in the verification page
      */
-    isVerificationRequired: ({ user }) => {
-      return (
-        Boolean(user?.enableMFA) && user?.verification?.status === 'pending'
+    isVerificationRequired: ({ user, verification }) => {
+      return Boolean(
+        user?.enableMFA && (!verification || verification?.status === 'pending')
       );
     },
 
@@ -71,18 +74,43 @@ export const useAuthStore = defineStore('auth', {
         });
     },
 
+    async createCode() {
+      this.isLoading = true;
+      this.error = undefined;
+
+      await httpClient
+        .post<
+          Verification,
+          AxiosResponse<Verification, ErrorResponse>,
+          undefined
+        >('/api/verification/create')
+        .then((res) => {
+          this.verification = res.data;
+          localStorage.setItem('user', JSON.stringify(res.data));
+        })
+        .catch((err) => {
+          this.error = err.response.data.message;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+
     async verifyCode(formData: VerifyCodeFormData) {
       this.isLoading = true;
       this.error = undefined;
 
       await httpClient
-        .post<User, AxiosResponse<User, ErrorResponse>, VerifyCodeFormData>(
-          '/api/auth/verify-code',
-          formData
-        )
+        .post<
+          Verification,
+          AxiosResponse<Verification, ErrorResponse>,
+          VerifyCodeFormData
+        >('/api/verification/verify', formData)
         .then((res) => {
-          this.user = res.data;
-          localStorage.setItem('user', JSON.stringify(res.data));
+          this.verification = res.data;
+          if (this.user) {
+            this.user.isPhoneNumberVerified = true;
+          }
         })
         .catch((err) => {
           this.error = err.response.data.message;
@@ -103,7 +131,6 @@ export const useAuthStore = defineStore('auth', {
         )
         .then((res) => {
           this.user = res.data;
-          localStorage.setItem('user', JSON.stringify(res.data));
         })
         .catch((err) => {
           this.error = err.response.data.message;
@@ -114,6 +141,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
+      this.isLoading = true;
       await httpClient
         .post<null, AxiosResponse<null, ErrorResponse>, null>(
           '/api/auth/logout'
@@ -122,7 +150,8 @@ export const useAuthStore = defineStore('auth', {
           this.error = err.response.data.message;
         })
         .finally(() => {
-          localStorage.removeItem('user');
+          this.isLoading = false;
+          this.$reset();
         });
     },
   },

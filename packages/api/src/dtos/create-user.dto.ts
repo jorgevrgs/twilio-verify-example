@@ -1,14 +1,18 @@
 import { channel } from '../schemas/auth.schema';
-import { CreateUserVerification } from './create-user-verification.dto';
+import { CreateFactor } from './create-factor';
 
+/**
+ * User information to be stored in the database
+ */
 export class CreateUserDto {
-  'username': string;
+  'defaultChannel': channel = channel.sms;
+  'enableMFA': boolean;
+  'factor'?: CreateFactor;
+  'isPhoneNumberVerified': boolean = false;
   'password': string;
   'phoneNumber': string;
-  'enableMFA': boolean;
-  'isPhoneNumberVerified': boolean;
-  'verification'?: CreateUserVerification;
-  'defaultChannel': channel = channel.sms;
+  'status': 'unconfirmed' | 'confirmed' = 'unconfirmed';
+  'username': string;
 
   constructor(data?: Partial<CreateUserDto>) {
     Object.assign(this, data);

@@ -14,18 +14,19 @@ export interface VerifyCodeFormData {
   sid: string;
 }
 
+export interface Verification {
+  sid: string;
+  channel: 'sms' | 'call';
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  valid: boolean;
+}
+
 export type User = Omit<RegisterFormData, 'password' | 'channel'> & {
   id: string;
   isPhoneNumberVerified: boolean;
   defaultChannel: 'sms' | 'call';
-  verification?: {
-    sid: string;
-    channel: 'sms' | 'call';
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-    valid: boolean;
-  };
 };
 
 export interface ErrorResponse {

@@ -31,13 +31,13 @@ const routes: RouterOptions['routes'] = [
         path: 'profile',
         name: 'Profile',
         component: () => import('@/pages/ProfilePage.vue'),
-        meta: { canAccess: 'onlyAuth' },
+        meta: { canAccess: 'onlyAllowed' },
       },
       {
         path: 'profile/change-password',
         name: 'ChangePassword',
         component: () => import('@/pages/ChangePasswordPage.vue'),
-        meta: { canAccess: 'onlyAuth' },
+        meta: { canAccess: 'onlyAllowed' },
       },
       {
         path: 'verification',
@@ -55,10 +55,6 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  const requiresAuth = to.matched.some(
-    (record) => record.meta.canAccess === 'onlyAuth'
-  );
-
   const authStore = useAuthStore();
   try {
     const { data: authenticatedUser } = await httpClient.get<User>(
@@ -69,14 +65,31 @@ router.beforeEach(async (to, from) => {
     // Ignore error
   }
 
-  if (to.name === 'Profile' && authStore.isPhoneVerificationInProgress) {
-    return { name: 'Verification' };
-  }
+  /**
+   * If the user is not authenticated and the route requires authentication, redirect to the login page
+   */
+  const requiresAuth = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyAuth'
+  );
 
   if (requiresAuth && !authStore.isAuthenticated) {
     return { name: 'Login' };
   }
 
+  /**
+   * Access to protected pages redirects to the verification page for MFA enabled users
+   */
+  const requiresPermission = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyAllowed'
+  );
+
+  if (requiresPermission && authStore.isVerificationRequired) {
+    return { name: 'Verification', query: { redirect: to.fullPath } };
+  }
+
+  /**
+   * Access to login/register redirects to profile page
+   */
   const requiresGuest = to.matched.some(
     (record) => record.meta.canAccess === 'onlyGuest'
   );
