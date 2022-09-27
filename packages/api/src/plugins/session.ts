@@ -3,7 +3,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { UserDto } from '../dtos';
+import { CreateVerificationDto, UserDto } from '../dtos';
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
@@ -18,9 +18,14 @@ declare module 'fastify' {
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
+    hasApprovedVerification: (
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) => Promise<void>;
   }
   interface Session {
     user?: UserDto;
+    verification?: CreateVerificationDto;
   }
 }
 
@@ -43,13 +48,27 @@ export default fp(
       .decorate(
         'isAuthenticated',
         async (request: FastifyRequest, reply: FastifyReply) => {
-          console.log('isAuthenticated', request.session.user);
+          request.log.info('isAuthenticated', request.session.user);
 
           if (!request.session.user) {
             throw reply.unauthorized('You must be logged in');
           }
         }
+      )
+      .decorate(
+        'hasApprovedVerification',
+        async (request: FastifyRequest, reply: FastifyReply) => {
+          request.log.info('hasApprovedVerification', request.session.user);
+
+          // Only runs for logged in users with MFA enabled
+          if (
+            request.session.user?.enableMFA &&
+            request.session.verification?.status === 'approved'
+          ) {
+            throw reply.forbidden('You must have permission to access this');
+          }
+        }
       );
   },
-  { name: 'session' }
+  { name: 'session', dependencies: ['twilio'] }
 );

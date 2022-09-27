@@ -8,34 +8,58 @@
     <div class="flex flex-col gap-4">
       <MazAvatar src="https://placekitten.com/200/200" size="2.5rem" />
 
-      <div class="flex w-full">
-        <dt class="flex-1">Username:</dt>
-        <dd class="flex-1">{{ authStore.user?.username }}</dd>
-      </div>
-
-      <div class="flex w-full">
-        <dy class="flex-1">Phone Number</dy>
-        <dd class="flex-1">
-          {{ formatedPhoneNumber }}
-        </dd>
-      </div>
-
-      <div class="flex w-full">
-        <dt class="flex-1">Password</dt>
-        <dd class="flex-1 tracking-widest">********</dd>
-      </div>
-
-      <section v-if="authStore.user?.enableMFA">
-        <h2 class="text-xl">MFA</h2>
+      <section>
+        <h2 class="text-xl mb-4 mt-12 font-bold">Profile</h2>
 
         <div class="flex w-full">
-          <dt class="flex-1">Enable Two-Factor Authentication (2FA)</dt>
+          <dt class="flex-1">Username:</dt>
+          <dd class="flex-1">{{ authStore.user?.username }}</dd>
+        </div>
+
+        <div class="flex w-full">
+          <dt class="flex-1">Phone Number</dt>
           <dd class="flex-1">
-            <MazSwitch color="info" disabled v-model="isMFAEnbled" />
+            {{ formatedPhoneNumber }}
           </dd>
         </div>
 
         <div class="flex w-full">
+          <dt class="flex-1">Password</dt>
+          <dd class="flex-1 tracking-widest">
+            ********
+            <MazBtn :to="{ name: 'ChangePassword' }" size="mini">
+              <MazIcon
+                name="pencil"
+                size="0.75rem"
+                aria-label="Change Password"
+              />
+              <span class="ml-1">Change Password</span>
+            </MazBtn>
+          </dd>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-xl mb-4 mt-12 font-bold">
+          Enable Two-Factor Authentication (2FA)
+        </h2>
+
+        <div class="flex w-full">
+          <dt class="flex-1">MFA Enabled</dt>
+          <dd class="flex-1">
+            <MazIcon
+              :name="enableMFAIconName"
+              :class="
+                authStore.user?.enableMFA ? 'text-green-500' : 'text-red-500'
+              "
+              :aria-label="
+                authStore.user?.enableMFA ? 'MFA is active' : 'MFA is inactive'
+              "
+            />
+          </dd>
+        </div>
+
+        <div class="flex w-full" v-if="authStore.user?.enableMFA">
           <dt class="flex-1">Channel</dt>
           <dd class="flex-1 tracking-widest">
             {{ authStore.user?.defaultChannel || 'SMS' }}
@@ -50,8 +74,8 @@
 import parsePhoneNumber from 'libphonenumber-js';
 import MazAvatar from 'maz-ui/components/MazAvatar';
 import MazBtn from 'maz-ui/components/MazBtn';
-import MazSwitch from 'maz-ui/components/MazSwitch';
-import { computed, ref } from 'vue';
+import MazIcon from 'maz-ui/components/MazIcon';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../features/auth/stores';
 
@@ -61,11 +85,12 @@ const router = useRouter();
 async function onLogOut() {
   await authStore.logout();
 
-  authStore.$reset();
   router.push({ name: 'Home' });
 }
 
-const isMFAEnbled = ref(Boolean(authStore.user?.enableMFA));
+const enableMFAIconName = computed(() =>
+  authStore.user?.enableMFA ? 'check-circle' : 'x-circle'
+);
 
 const formatedPhoneNumber = computed(() => {
   if (!authStore.user?.phoneNumber) return null;

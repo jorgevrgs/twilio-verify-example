@@ -1,16 +1,20 @@
 import omit from 'lodash.omit';
 import type { Document } from 'mongodb';
 import { channel } from '../schemas/auth.schema';
-import { CreateUserVerification } from './create-user-verification.dto';
+import { CreateFactor } from './create-factor';
+import { CreateVerificationDto } from './create-verification.dto';
 
+/**
+ * User information to be returned to the client
+ */
 export class UserDto {
-  'id': string;
-  'username': string;
-  'phoneNumber': string;
-  'enableMFA': boolean;
-  'isPhoneNumberVerified': boolean;
-  'verification'?: CreateUserVerification;
   'defaultChannel': channel = channel.sms;
+  'enableMFA': boolean;
+  'factor'?: CreateFactor;
+  'id': string;
+  'phoneNumber': string;
+  'username': string;
+  'verification'?: CreateVerificationDto;
 
   constructor(data?: Partial<Document>) {
     Object.assign(

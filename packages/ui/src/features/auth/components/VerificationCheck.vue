@@ -1,7 +1,54 @@
+<template>
+  <form class="flex flex-col gap-4 mt-8">
+    <div class="p-4 bg-blue-200">
+      <MazIcon name="information-circle" size="1rem" />
+      {{ authStore.verification?.channel === 'sms' ? 'A message' : 'A call' }}
+      has been sent to your phone number
+      <span class="font-semibold">{{ formatedPhoneNumber }}</span
+      >. Please enter the code below before it expires in
+      <span class="font-bold font-mono">{{ formattedTimeToExpire }}</span
+      >.
+    </div>
+
+    <MazInput
+      type="text"
+      id="verificationCode"
+      label="Verification Code"
+      v-model="formData.verificationCode"
+      aria-label="Verification Code"
+      autocomplete="one-time-code"
+      placeholder="123456"
+      :valid-button="isValidCode"
+      required
+      auto-focus
+    />
+
+    <div class="flex justify-end gap-8">
+      <MazBtn
+        type="button"
+        color="danger"
+        :disabled="authStore.isLoading"
+        @click.prevent="onReset"
+        >Cancel</MazBtn
+      >
+
+      <MazBtn
+        type="submit"
+        color="primary"
+        @click.prevent="onSubmit"
+        :disabled="!isValidCode"
+        :loading="authStore.isLoading"
+        >Submit</MazBtn
+      >
+    </div>
+  </form>
+</template>
+
 <script setup lang="ts">
 import parsePhoneNumber from 'libphonenumber-js';
 import { ToasterHandler } from 'maz-ui';
 import MazBtn from 'maz-ui/components/MazBtn';
+import MazIcon from 'maz-ui/components/MazIcon';
 import MazInput from 'maz-ui/components/MazInput';
 import {
   computed,
@@ -13,7 +60,6 @@ import {
   ref,
 } from 'vue';
 import { useRouter } from 'vue-router';
-import BounceLoader from 'vue-spinner/src/BounceLoader.vue';
 import { getSecondsToExpire } from '../../../utils/dates';
 import { hidePartOfString } from '../../../utils/strings';
 import { useAuthStore } from '../stores';
@@ -33,7 +79,7 @@ const formData = reactive({
 
 const timer = ref<NodeJS.Timer>();
 const secondsToExpire = ref(
-  getSecondsToExpire(authStore.user?.verification?.updatedAt as string)
+  getSecondsToExpire(authStore.verification?.updatedAt as string)
 );
 const formattedTimeToExpire = computed(() => {
   const minutes = Math.floor(secondsToExpire.value / 60);
@@ -82,9 +128,9 @@ async function onSubmit() {
 // Lifecycle
 onMounted(() => {
   // Verify with code
-  if (authStore.user?.verification) {
+  if (authStore.user && authStore.verification) {
     formData.phoneNumber = authStore.user.phoneNumber;
-    formData.sid = authStore.user.verification.sid;
+    formData.sid = authStore.verification.sid;
   }
 });
 
@@ -103,58 +149,5 @@ onBeforeUnmount(() => {
   clearInterval(timer.value);
 });
 </script>
-
-<template>
-  <form
-    v-if="authStore.isPhoneVerificationInProgress"
-    class="flex flex-col gap-4 mt-8"
-  >
-    <div class="p-4 bg-blue-200">
-      ℹ️
-      {{
-        authStore.user?.verification?.channel === 'sms' ? 'A message' : 'A call'
-      }}
-      has been sent to your phone number
-      <span class="font-semibold">{{ formatedPhoneNumber }}</span
-      >. Please enter the code below before it expires in
-      <span class="font-bold font-mono">{{ formattedTimeToExpire }}</span
-      >.
-    </div>
-
-    <MazInput
-      type="text"
-      id="verificationCode"
-      label="Verification Code"
-      v-model="formData.verificationCode"
-      aria-label="Verification Code"
-      autocomplete="one-time-code"
-      placeholder="123456"
-      :valid-button="isValidCode"
-      required
-    />
-
-    <div class="flex justify-end gap-8">
-      <MazBtn
-        type="button"
-        color="danger"
-        :disabled="authStore.isLoading"
-        @click.prevent="onReset"
-        >Cancel</MazBtn
-      >
-
-      <MazBtn
-        type="submit"
-        color="primary"
-        @click.prevent="onSubmit"
-        :disabled="!isValidCode"
-        :loading="authStore.isLoading"
-        >Submit</MazBtn
-      >
-    </div>
-  </form>
-  <div v-else class="flex justify-center items-center">
-    <BounceLoader />
-  </div>
-</template>
 
 <style lang="scss" scoped></style>

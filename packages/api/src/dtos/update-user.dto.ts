@@ -1,7 +1,5 @@
-import { CreateUserVerification } from './create-user-verification.dto';
-
 export class UpdateUserDto {
-  'verification'?: CreateUserVerification;
+  'password'?: string;
 
   constructor(data?: Partial<UpdateUserDto>) {
     Object.assign(this, data);

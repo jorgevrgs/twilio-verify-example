@@ -1,8 +1,6 @@
 import DefaultLayout from '@/layouts/default.vue';
 import { createRouter, createWebHistory, RouterOptions } from 'vue-router';
 import { useAuthStore } from '../features/auth/stores';
-import { User } from '../features/auth/types';
-import { httpClient } from '../utils/http-client';
 
 const routes: RouterOptions['routes'] = [
   {
@@ -34,10 +32,16 @@ const routes: RouterOptions['routes'] = [
         meta: { canAccess: 'onlyAuth' },
       },
       {
+        path: 'profile/change-password',
+        name: 'ChangePassword',
+        component: () => import('@/pages/ChangePasswordPage.vue'),
+        meta: { canAccess: 'onlyAuth' },
+      },
+      {
         path: 'verification',
         name: 'Verification',
         component: () => import('@/pages/VerificationPage.vue'),
-        meta: { canAccess: 'onlyAuth' },
+        meta: { canAccess: 'onlyForm' },
       },
     ],
   },
@@ -49,31 +53,38 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  const requiresAuth = to.matched.some(
-    (record) => record.meta.canAccess === 'onlyAuth'
-  );
-
   const authStore = useAuthStore();
   try {
-    const { data: authenticatedUser } = await httpClient.get<User>(
-      '/api/users/me'
-    );
-    authStore.$patch({ user: authenticatedUser });
+    await authStore.getCurrentUser();
   } catch (error) {
     // Ignore error
   }
 
-  if (to.name === 'Profile' && authStore.isPhoneVerificationInProgress) {
-    return { name: 'Verification' };
+  /**
+   * Check access
+   */
+  const requiresAuth = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyAuth'
+  );
+  const requiresGuest = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyGuest'
+  );
+  const requiresForm = to.matched.some(
+    (record) => record.meta.canAccess === 'onlyForm'
+  );
+
+  // If the form is not generated, redirecto to the origin page
+  if (requiresForm && !Boolean(authStore.formData)) {
+    return from.fullPath;
   }
 
   if (requiresAuth && !authStore.isAuthenticated) {
     return { name: 'Login' };
   }
 
-  const requiresGuest = to.matched.some(
-    (record) => record.meta.canAccess === 'onlyGuest'
-  );
+  if (requiresAuth && authStore.verificationState === 'pending') {
+    return { name: 'Verification', query: { redirect: to.fullPath } };
+  }
 
   if (requiresGuest && authStore.isAuthenticated) {
     return { name: 'Profile' };
