@@ -1,10 +1,30 @@
-import AutoLoad, { AutoloadPluginOptions } from '@fastify/autoload';
 import { FastifyPluginAsync } from 'fastify';
-import { join } from 'path';
+import fp from 'fastify-plugin';
+import {
+  corsPlugin,
+  helpersPlugin,
+  mongoPlugin,
+  sensiblePlugin,
+  sessionPlugin,
+  twilioPlugin,
+  websocketPlugin,
+} from './plugins';
+import {
+  cancelVerifyRoute,
+  changePasswordRoute,
+  checkVerifyRoute,
+  createVerifyRoute,
+  loginRoute,
+  logoutRoute,
+  meRoute,
+  registerRoute,
+  usernameRoute,
+  webhookRoute,
+} from './routes';
 
 export type AppOptions = {
   prefix: string;
-} & Partial<AutoloadPluginOptions>;
+};
 
 export const options: AppOptions = {
   prefix: '/api',
@@ -16,30 +36,29 @@ const app: FastifyPluginAsync<AppOptions> = async (
 ): Promise<void> => {
   // Place here your custom code!
 
-  // Do not touch the following lines
-
-  // This loads all plugins defined in plugins
-  // those should be support plugins that are reused
-  // through your application
-  void fastify
-    .register(AutoLoad, {
-      dir: join(__dirname, 'plugins'),
-      options: opts,
-    })
+  fastify
+    // Plugins
+    .register(fp(corsPlugin))
+    .register(fp(helpersPlugin))
+    .register(fp(mongoPlugin))
+    .register(fp(sensiblePlugin))
+    .register(fp(sessionPlugin))
+    .register(fp(twilioPlugin))
+    .register(fp(websocketPlugin))
+    // Routes
+    .register(loginRoute, { prefix: '/api/v1/auth' })
+    .register(logoutRoute, { prefix: '/api/v1/auth' })
+    .register(registerRoute, { prefix: '/api/v1/auth' })
+    .register(changePasswordRoute, { prefix: '/api/v1/users' })
+    .register(meRoute, { prefix: '/api/v1/users' })
+    .register(usernameRoute, { prefix: '/api/v1/users' })
+    .register(cancelVerifyRoute, { prefix: '/api/v1/verification' })
+    .register(createVerifyRoute, { prefix: '/api/v1/verification' })
+    .register(checkVerifyRoute, { prefix: '/api/v1/verification' })
+    .register(webhookRoute, { prefix: '/api/v1/webhooks' })
     .ready((err) => {
       if (err) throw err;
       fastify.log.info(fastify.printPlugins());
-    });
-
-  // This loads all plugins defined in routes
-  // define your routes in one of these
-  void fastify
-    .register(AutoLoad, {
-      dir: join(__dirname, 'routes'),
-      options: { opts, prefix: '/api/v1' },
-    })
-    .ready((err) => {
-      if (err) throw err;
       fastify.log.info(fastify.printRoutes());
     });
 };

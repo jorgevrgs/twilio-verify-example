@@ -7,7 +7,10 @@ import {
   verifyCodeSchema,
 } from '../../schemas';
 
-const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const checkVerifyRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   // Creates a verification
   fastify.route({
     url: '/verify/:username',
@@ -23,15 +26,9 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       const opts: VerificationCheckListInstanceCreateOptions = {};
 
       const { username } = request.params;
-      const { verificationCode, phoneNumber, sid } = request.body;
+      const { verificationCode, phoneNumber } = request.body;
 
       const user = await request.db?.collection('users').findOne({ username });
-
-      if (!user && (!phoneNumber || !verificationCode || !sid)) {
-        throw reply.badRequest(
-          'Missing phone number, verification code, or sid'
-        );
-      }
 
       opts.to = user?.phoneNumber || phoneNumber;
       opts.code = user?.verificationCode || verificationCode;
@@ -48,5 +45,3 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
   });
 };
-
-export default usersRoute;

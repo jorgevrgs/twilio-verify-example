@@ -2,7 +2,10 @@ import { ObjectId } from '@fastify/mongodb';
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { UserDto } from '../../dtos';
 
-const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const changePasswordRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   fastify.route({
     url: '/change-password',
     method: 'PATCH',
@@ -60,5 +63,3 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
   });
 };
-
-export default usersRoute;

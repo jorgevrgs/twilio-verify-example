@@ -1,4 +1,5 @@
 import fastify from 'fastify';
+import fp from 'fastify-plugin';
 import app from './app';
 
 const envToLogger = {
@@ -20,8 +21,9 @@ const server = fastify({
     process.env.NODE_ENV === 'production' ? true : envToLogger['development'],
 });
 
-server.register(app);
+server.register(fp(app));
 
 server.listen({
   port: process.env.PORT ? Number(process.env.PORT) : 1337,
+  host: process.env.HOST || '::',
 });

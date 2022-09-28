@@ -3,7 +3,10 @@ import pick from 'lodash.pick';
 import { UserDto } from '../../dtos';
 import { userByUsernameSchema, UsernameParams } from '../../schemas';
 
-const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const usernameRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   fastify.route({
     url: '/:username',
     method: 'GET',
@@ -28,5 +31,3 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
   });
 };
-
-export default usersRoute;

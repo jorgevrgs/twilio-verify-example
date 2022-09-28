@@ -1,4 +1,4 @@
-import fp from 'fastify-plugin';
+import type { FastifyPluginAsync } from 'fastify';
 import twilio, { Twilio } from 'twilio';
 import type { ServiceContext } from 'twilio/lib/rest/verify/v2/service';
 
@@ -21,23 +21,19 @@ declare module 'fastify' {
   }
 }
 
-export default fp(
-  async (fastify, opts) => {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
+export const twilioPlugin: FastifyPluginAsync = async (fastify, opts) => {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
-    const client = twilio(accountSid, authToken);
+  const client = twilio(accountSid, authToken);
 
-    fastify
-      .decorate('twilio', client)
-      .decorateRequest('twilioVerify', null)
-      .addHook('onRequest', async (request) => {
-        if (!request.twilioVerify) {
-          request.twilioVerify = client.verify.v2.services(
-            process.env.TWILIO_VERIFY_SERVICE_SID
-          );
-        }
-      });
-  },
-  { name: 'twilio' }
-);
+  fastify
+    .decorate('twilio', client)
+    .decorateRequest('twilioVerify', null)
+    .addHook('onRequest', async (request) => {
+      if (!request.twilioVerify) {
+        request.twilioVerify = client.verify.v2.services(verifyServiceSid);
+      }
+    });
+};

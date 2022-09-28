@@ -55,7 +55,6 @@ import {
   inject,
   onBeforeMount,
   onBeforeUnmount,
-  onMounted,
   reactive,
   ref,
 } from 'vue';
@@ -124,15 +123,6 @@ async function onSubmit() {
     router.push({ name: 'Profile' });
   }
 }
-
-// Lifecycle
-onMounted(() => {
-  // Verify with code
-  if (authStore.user && authStore.verification) {
-    formData.phoneNumber = authStore.user.phoneNumber;
-    formData.sid = authStore.verification.sid;
-  }
-});
 
 onBeforeMount(() => {
   timer.value = setInterval(() => {

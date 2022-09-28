@@ -3,7 +3,10 @@ import { FastifyPluginAsync } from 'fastify';
 import { UserDto } from '../../dtos';
 import { loginSchema } from '../../schemas/auth.schema';
 
-const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const loginRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   fastify.withTypeProvider<TypeBoxTypeProvider>().route({
     url: '/login',
     method: 'POST',
@@ -45,5 +48,3 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
   });
 };
-
-export default authRoute;

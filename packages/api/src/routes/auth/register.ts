@@ -4,7 +4,10 @@ import { UserDto } from '../../dtos';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { registerSchema } from '../../schemas/auth.schema';
 
-const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const registerRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   fastify.withTypeProvider<TypeBoxTypeProvider>().route({
     url: '/register',
     method: 'POST',
@@ -56,5 +59,3 @@ const authRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
   });
 };
-
-export default authRoute;

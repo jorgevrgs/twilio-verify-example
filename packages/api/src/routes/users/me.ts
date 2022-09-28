@@ -2,7 +2,10 @@ import { ObjectId } from '@fastify/mongodb';
 import { FastifyPluginAsync } from 'fastify';
 import { UserDto } from '../../dtos';
 
-const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const meRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   fastify.get(
     '/me',
     { preHandler: fastify.auth([fastify.isAuthenticated]) },
@@ -15,8 +18,6 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         throw reply.notFound('User not found');
       }
 
-      request.log.info({ verification: request.session.verification });
-
       return new UserDto({
         ...user,
         verification: request.session.verification,
@@ -24,5 +25,3 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     }
   );
 };
-
-export default usersRoute;
