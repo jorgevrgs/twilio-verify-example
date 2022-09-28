@@ -29,6 +29,8 @@ services:
     build:
       context: packages/ui
       dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://twilio_api:1337}
     depends_on:
       - twilio_api
     env_file:

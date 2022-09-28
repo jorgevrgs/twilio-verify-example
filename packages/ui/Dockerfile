@@ -1,6 +1,10 @@
 # Create the container from the alpine linux image
 FROM alpine:3.16.2
 
+ARG VITE_BACKEND_URL
+
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+
 # Add nginx and nodejs
 RUN apk add --update nginx
 
