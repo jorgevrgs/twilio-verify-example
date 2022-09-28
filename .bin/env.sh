@@ -1,16 +1,42 @@
 set -x
 
-## Load the environment variables
-set -a
-. .env
-set +a
+SECRET_STRING=$(openssl rand -base64 32)
 
-echo FRONTEND_URL="http://localhost:5173" > packages/api/.env.local
-echo MONGO_URL="mongodb://twilioUsername:twilioPassword@localhost:27017/twilioDatabase" >> packages/api/.env.local
-echo SESSION_SECRET="${API_SESSION_SECRET}" >> packages/api/.env.local
-echo TWILIO_ACCOUNT_SID="${API_TWILIO_ACCOUNT_SID}" >> packages/api/.env.local
-echo TWILIO_AUTH_TOKEN="${API_TWILIO_AUTH_TOKEN}" >> packages/api/.env.local
-echo TWILIO_VERIFY_SERVICE_SID="${API_TWILIO_VERIFY_SERVICE_SID}" >> packages/api/.env.local
-echo TWILIO_WEBHOOK_URL="http://localhost:3000/api/v1/webhook" >> packages/api/.env.local
+#############
+# LOCAL ENV #
+#############
 
-echo VITE_BACKEND_URL="http:localhost:1337" > packages/ui/.env.local
+# Backend
+echo "FRONTEND_URL=http://localhost:5173" > packages/api/.env.local
+echo "MONGO_URL=mongodb://twilioUsername:twilioPassword@localhost:27017/twilioDatabase" >> packages/api/.env.local
+echo "SESSION_SECRET=${SECRET_STRING}" >> packages/api/.env.local
+echo "TWILIO_ACCOUNT_SID=REPLACE_ME" >> packages/api/.env.local
+echo "TWILIO_AUTH_TOKEN=REPLACE_ME" >> packages/api/.env.local
+echo "TWILIO_VERIFY_SERVICE_SID=REPLACE_ME" >> packages/api/.env.local
+echo "TWILIO_WEBHOOK_URL=http://localhost:3000/api/v1/webhook" >> packages/api/.env.local
+
+# Frontend
+echo "VITE_BACKEND_URL=http:localhost:1337" > packages/ui/.env.local
+
+##############
+# DOCKER ENV #
+##############
+
+# Backend
+echo "FRONTEND_URL=http://twilio_ui:5173" > packages/api/.env.docker
+echo "MONGO_URL=mongodb://twilioUsername:twilioPassword@twilio_db:27017/twilioDatabase" >> packages/api/.env.docker
+echo "SESSION_SECRET=${SECRET_STRING}" >> packages/api/.env.docker
+echo "TWILIO_ACCOUNT_SID=REPLACE_ME" >> packages/api/.env.docker
+echo "TWILIO_AUTH_TOKEN=REPLACE_ME" >> packages/api/.env.docker
+echo "TWILIO_VERIFY_SERVICE_SID=REPLACE_ME" >> packages/api/.env.docker
+echo "TWILIO_WEBHOOK_URL=http://twilio_ui:5173/api/v1/webhook" >> packages/api/.env.docker
+
+# Frontend
+echo "VITE_BACKEND_URL=http:twilio_api:1337" > packages/ui/.env.docker
+
+# Database
+echo "MONGO_INITDB_ROOT_USERNAME=adminuser" > .env.db
+echo "MONGO_INITDB_ROOT_PASSWORD=adminpassword" >> .env.db
+echo "MONGO_INITDB_DATABASE=twilioDatabase" >> .env.db
+echo "MONGO_INITDB_USERNAME=twilioUsername" >> .env.db
+echo "MONGO_INITDB_PASSWORD=twilioPassword" >> .env.db
