@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "concurrently 'npm run dev -w @app/api' 'npm run dev -w @app/ui'",
-    "build:docker": "sh .bin/docker/build.sh",
-    "build:env": "sh .bin/docker/env.sh",
+    "build:docker": "sh .bin/build.sh",
+    "build:env": "sh .bin/env.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

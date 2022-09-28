@@ -7,7 +7,10 @@ import {
   verifyCodeSchema,
 } from '../../schemas';
 
-const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const checkVerifyRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   // Creates a verification
   fastify.route({
     url: '/verify/:username',
@@ -48,5 +51,3 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
   });
 };
-
-export default usersRoute;

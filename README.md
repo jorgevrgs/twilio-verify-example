@@ -9,7 +9,9 @@ App to register and log in an user using the Twilio Verify service.
 Copy the env file:
 
 ```sh
-cp .env.docker.example .env
+cp .env.example.api .env.api
+cp .env.example.db .env.db
+cp .env.example.ui .env.ui
 ```
 
 Generate a session string, example using your terminal:
@@ -26,7 +28,7 @@ Start the containers:
 sh .bin/docker/build.sh
 ```
 
-Now you it is possible to access the user interface: [Frontend](http://localhost:3000) and [Backend](http://localhost:1337).
+Now, it is possible to access the user interface: [Frontend](http://localhost:3000) and [Backend](http://localhost:1337).
 
 ### Local
 

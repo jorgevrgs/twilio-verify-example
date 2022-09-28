@@ -2,7 +2,10 @@ import { ObjectId } from '@fastify/mongodb';
 import { FastifyPluginAsync } from 'fastify';
 import { UserDto } from '../../dtos';
 
-const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const meRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   fastify.get(
     '/me',
     { preHandler: fastify.auth([fastify.isAuthenticated]) },
@@ -24,5 +27,3 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     }
   );
 };
-
-export default usersRoute;

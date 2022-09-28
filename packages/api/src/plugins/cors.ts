@@ -1,5 +1,5 @@
 import cors, { FastifyCorsOptions } from '@fastify/cors';
-import fp from 'fastify-plugin';
+import { FastifyPluginAsync } from 'fastify';
 
 declare global {
   namespace NodeJS {
@@ -9,21 +9,21 @@ declare global {
   }
 }
 
-/**
- * This plugins adds some utilities to handle http errors
- *
- * @see https://github.com/fastify/fastify-cors
- */
-export default fp<FastifyCorsOptions>(
-  async (fastify, opts) => {
-    fastify.register(cors, {
-      ...opts,
-      origin: [
-        process.env.FRONTEND_URL || 'http://localhost:3000',
-        '*.twilio.com',
-      ],
-      credentials: true,
-    });
-  },
-  { name: 'cors' }
-);
+export const corsPlugin: FastifyPluginAsync = async (
+  fastify,
+  opts: FastifyCorsOptions
+) => {
+  fastify.register(
+    cors,
+    Object.assign(
+      {
+        origin: [
+          process.env.FRONTEND_URL || 'http://localhost:3000',
+          '*.twilio.com',
+        ],
+        credentials: true,
+      },
+      opts
+    )
+  );
+};

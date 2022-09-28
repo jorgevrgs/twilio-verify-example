@@ -1,6 +1,9 @@
 import { FastifyPluginAsync } from 'fastify';
 
-const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+export const cancelVerifyRoute: FastifyPluginAsync = async (
+  fastify,
+  opts
+): Promise<void> => {
   // Cancel a pending verification
   fastify.route({
     url: '/cancel',
@@ -13,5 +16,3 @@ const usersRoute: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
   });
 };
-
-export default usersRoute;

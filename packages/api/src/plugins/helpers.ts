@@ -1,5 +1,5 @@
 import bcryptjs from 'bcryptjs';
-import fp from 'fastify-plugin';
+import { FastifyPluginAsync } from 'fastify';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -13,21 +13,24 @@ declare module 'fastify' {
   }
 }
 
-export default fp(
-  async (fastify, opts) => {
-    const helpers = {
-      hashPassword: async (plainText: string) => {
-        const salt = await bcryptjs.genSalt(10);
+export const helpersPlugin: FastifyPluginAsync = async (fastify) => {
+  const helpers = {
+    hashPassword: async (plainText: string) => {
+      const salt = await bcryptjs.genSalt(10);
 
-        return bcryptjs.hash(plainText, salt);
-      },
+      return bcryptjs.hash(plainText, salt);
+    },
 
-      checkPassword: async (plainText: string, hashedPassword: string) => {
-        return bcryptjs.compare(plainText, hashedPassword);
-      },
-    };
+    checkPassword: async (plainText: string, hashedPassword: string) => {
+      return bcryptjs.compare(plainText, hashedPassword);
+    },
+  };
 
-    fastify.decorateRequest('helpers', helpers);
-  },
-  { name: 'helpers' }
-);
+  fastify
+    .decorateRequest('helpers', null)
+    .addHook('onRequest', async (request) => {
+      if (!request.helpers) {
+        request.helpers = helpers;
+      }
+    });
+};
