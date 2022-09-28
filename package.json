@@ -5,6 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "build:docker": "sh .bin/docker/build.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

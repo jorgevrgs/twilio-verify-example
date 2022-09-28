@@ -11,13 +11,4 @@ export default defineConfig({
       '@': '/src',
     },
   },
-  server: {
-    proxy: {
-      '/api/v1': {
-        target: process.env.VITE_BACKEND_URL || 'http://localhost:1337',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/v1/, '/api/v1/'),
-      },
-    },
-  },
 });
