@@ -1,6 +1,10 @@
 # Twilio Verify
 
-App to register and log in an user using the Twilio Verify service.
+App to register and log in an user using the Twilio Verify service. See it in action below:
+
+[Docker without MFA](https://www.loom.com/share/a19dd125937344d69d0aa31a46b15cb2)
+
+[Local with MFA](https://www.loom.com/share/b43ed46fdedf4b18a44e5939770accec)
 
 ## Getting Started
 
