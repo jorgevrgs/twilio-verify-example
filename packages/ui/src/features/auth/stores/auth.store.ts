@@ -290,6 +290,8 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true;
       this.error = undefined;
 
+      formData.phoneNumber = formData.phoneNumber || this.currentPhoneNumber;
+
       await httpClient
         .post<
           Verification,

@@ -18,8 +18,6 @@ export const meRoute: FastifyPluginAsync = async (
         throw reply.notFound('User not found');
       }
 
-      request.log.info({ verification: request.session.verification });
-
       return new UserDto({
         ...user,
         verification: request.session.verification,
