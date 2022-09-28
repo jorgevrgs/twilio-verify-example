@@ -5,14 +5,15 @@ services:
     container_name: twilio_api
     image: twilio/api:latest
     build:
-      context: .
-      dockerfile: Dockerfile.api
+      context: packages/api
+      dockerfile: Dockerfile
     depends_on:
       - twilio_db
     env_file:
-      - .env.api
+      - packages/api/.env.docker
     environment:
       FASTIFY_PORT: 1337
+      FASTIFY_ADDRESS: 0.0.0.0
     networks:
       - twilio-network
     ports:
@@ -26,12 +27,12 @@ services:
     container_name: twilio_ui
     image: twilio/ui:latest
     build:
-      context: .
-      dockerfile: Dockerfile.ui
+      context: packages/ui
+      dockerfile: Dockerfile
     depends_on:
       - twilio_api
     env_file:
-      - .env.ui
+      - packages/ui/.env.docker
     networks:
       - twilio-network
     ports:

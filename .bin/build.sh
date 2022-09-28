@@ -1,12 +1,15 @@
 set -x
 
-## Load the environment variables
+cd packages/api
 set -a
-. .env.api
-. .env.db
-. .env.ui
+. .env.docker
 set +a
+docker build --no-cache -t twilio/api:latest -f Dockerfile .
+cd -
 
-docker build --no-cache -t twilio/api:latest -f Dockerfile.api .
-docker build --no-cache -t twilio/ui:latest -f Dockerfile.ui .
-docker-compose up -d
+cd packages/ui
+set -a
+. .env.docker
+set +a
+docker build --no-cache -t twilio/ui:latest -f Dockerfile .
+cd -

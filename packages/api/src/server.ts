@@ -25,4 +25,5 @@ server.register(fp(app));
 
 server.listen({
   port: process.env.PORT ? Number(process.env.PORT) : 1337,
+  host: process.env.HOST || '::',
 });

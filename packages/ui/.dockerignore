@@ -1,6 +1,7 @@
 .dockerignore
-.env*
+.env.docker
+.env.local
 .git*
-node_modules
-dist
 .vscode
+dist
+node_modules

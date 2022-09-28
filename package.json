@@ -5,8 +5,9 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "dev": "concurrently 'npm run dev -w @app/api' 'npm run dev -w @app/ui'",
-    "build:docker": "sh .bin/build.sh",
+    "local": "concurrently 'npm run dev -w @app/api' 'npm run dev -w @app/ui'",
+    "build": "sh .bin/build.sh",
+    "start": "sh .bin/run.sh",
     "build:env": "sh .bin/env.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

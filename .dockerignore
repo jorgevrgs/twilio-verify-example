@@ -1,6 +1,7 @@
-.env*
-node_modules
-dist
-build
-.git
-.tmp
+packages/**/.env.*
+packages/**/node_modules
+packages/**/dist
+packages/**/build
+packages/**/.git*
+packages/**/.tmp
+packages/**/.dockerignore
