@@ -21,8 +21,6 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(async () => {
-  console.log('Running onMounted', authStore.verificationState);
-
   if (!authStore.action || !authStore.formData) {
     return;
   }
@@ -33,8 +31,6 @@ onMounted(async () => {
 });
 
 watchEffect(async () => {
-  console.log('Running watchEffect', authStore.verificationState);
-
   if (authStore.verificationState === 'success') {
     await authStore.executeAsyncForm();
 

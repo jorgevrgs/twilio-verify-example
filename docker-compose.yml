@@ -18,6 +18,7 @@ services:
       TWILIO_AUTH_TOKEN: ${API_TWILIO_AUTH_TOKEN:-'REPLACEME'}
       TWILIO_VERIFY_SERVICE_SID: ${API_TWILIO_VERIFY_SERVICE_SID:-'REPLACEME'}
       SESSION_SECRET: ${API_SESSION_SECRET:-'REPLACEME'}
+      FASTIFY_PORT: 1337
     networks:
       - twilio-network
     ports:
@@ -38,11 +39,11 @@ services:
     env_file:
       - ./.env
     environment:
-      VITE_BACKEND_URL: ${UI_BACKEND_URL:-http://localhost:1337}
+      VITE_BACKEND_URL: ${UI_BACKEND_URL:-http://twilio_api:1337}
     networks:
       - twilio-network
     ports:
-      - 3000:80
+      - 3000:3000
     restart: always
     volumes:
       - ./packages/ui:/usr/src/app

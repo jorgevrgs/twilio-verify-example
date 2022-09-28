@@ -152,7 +152,7 @@ export const useAuthStore = defineStore('auth', {
           const username = loginformData.username;
           const isMFAEnabled = await httpClient
             .get<Pick<UserResponse, 'id' | 'enableMFA'>>(
-              `/api/users/${encodeURIComponent(username)}`
+              `/api/v1/users/${encodeURIComponent(username)}`
             )
             .then(({ data }) => data.enableMFA)
             .catch(() => {
@@ -221,7 +221,7 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true;
       await httpClient
         .get<UserResponse, AxiosResponse<UserResponse, ErrorResponse>>(
-          '/api/users/me'
+          '/api/v1/users/me'
         )
         .then(({ data }) => {
           const { verification, factor, ...user } = data;
@@ -230,8 +230,8 @@ export const useAuthStore = defineStore('auth', {
           this.verification = verification;
           this.factor = factor;
         })
-        .catch((err) => {
-          console.log(err.response.data.message);
+        .catch((_err) => {
+          // Ignore error;
         })
         .finally(() => {
           this.isLoading = false;
@@ -247,7 +247,7 @@ export const useAuthStore = defineStore('auth', {
           UserState,
           AxiosResponse<UserState, ErrorResponse>,
           RegisterFormData
-        >('/api/auth/register', formData)
+        >('/api/v1/auth/register', formData)
         .then((res) => {
           this.user = res.data;
           localStorage.setItem('user', JSON.stringify(res.data));
@@ -274,7 +274,7 @@ export const useAuthStore = defineStore('auth', {
           Verification,
           AxiosResponse<Verification, ErrorResponse>,
           CreateCodeForm
-        >(`/api/verification/create/${this.currentUsername}`, formData)
+        >(`/api/v1/verification/create/${this.currentUsername}`, formData)
         .then(({ data }) => {
           this.verification = data;
         })
@@ -295,7 +295,7 @@ export const useAuthStore = defineStore('auth', {
           Verification,
           AxiosResponse<Verification, ErrorResponse>,
           VerifyCodeFormData
-        >(`/api/verification/verify/${this.currentUsername}`, formData)
+        >(`/api/v1/verification/verify/${this.currentUsername}`, formData)
         .then((res) => {
           this.verificationState = 'success';
           this.verification = res.data;
@@ -320,7 +320,7 @@ export const useAuthStore = defineStore('auth', {
 
       await httpClient
         .post<UserState, AxiosResponse<UserState, ErrorResponse>>(
-          '/api/auth/login',
+          '/api/v1/auth/login',
           formData
         )
         .then((res) => {
@@ -338,7 +338,7 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true;
       await httpClient
         .post<null, AxiosResponse<null, ErrorResponse>, null>(
-          '/api/auth/logout'
+          '/api/v1/auth/logout'
         )
         .catch((err) => {
           this.error = err.response.data.message;
@@ -358,7 +358,7 @@ export const useAuthStore = defineStore('auth', {
           null,
           AxiosResponse<null, ErrorResponse>,
           ChangePasswordFormData
-        >('/api/users/change-password', formData)
+        >('/api/v1/users/change-password', formData)
         .catch((err) => {
           this.error = err.response.data.message;
         })

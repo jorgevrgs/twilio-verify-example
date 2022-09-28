@@ -5,6 +5,9 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "dev": "concurrently 'npm run dev -w @app/api' 'npm run dev -w @app/ui'",
+    "build:docker": "sh .bin/docker/build.sh",
+    "build:env": "sh .bin/docker/env.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,5 +15,8 @@
   "license": "MIT",
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "concurrently": "7.4.0"
+  }
 }

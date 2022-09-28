@@ -24,11 +24,11 @@ const authStore = useAuthStore();
 watchEffect(() => {
   if (authStore.error) {
     toast?.error(authStore.error);
-  }
-
-  if (authStore.success) {
+  } else if (authStore.success) {
     toast?.success(authStore.success);
   }
+
+  authStore.cleanMessages();
 });
 </script>
 
