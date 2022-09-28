@@ -7,7 +7,7 @@ SECRET_STRING=$(openssl rand -base64 32)
 #############
 
 # Backend
-echo "FRONTEND_URL=http://localhost:5173" > packages/api/.env.local
+echo "FRONTEND_URL=http://localhost:3000" > packages/api/.env.local
 echo "MONGO_URL=mongodb://twilioUsername:twilioPassword@localhost:27017/twilioDatabase" >> packages/api/.env.local
 echo "SESSION_SECRET=${SECRET_STRING}" >> packages/api/.env.local
 echo "TWILIO_ACCOUNT_SID=REPLACE_ME" >> packages/api/.env.local
@@ -23,7 +23,7 @@ echo "VITE_BACKEND_URL=http:localhost:1337" > packages/ui/.env.local
 ##############
 
 # Backend
-echo "FRONTEND_URL=http://twilio_ui:5173" > packages/api/.env.docker
+echo "FRONTEND_URL=http://twilio_ui:3000" > packages/api/.env.docker
 echo "MONGO_URL=mongodb://twilioUsername:twilioPassword@twilio_db:27017/twilioDatabase" >> packages/api/.env.docker
 echo "SESSION_SECRET=${SECRET_STRING}" >> packages/api/.env.docker
 echo "TWILIO_ACCOUNT_SID=REPLACE_ME" >> packages/api/.env.docker
