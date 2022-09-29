@@ -1,4 +1,5 @@
 import { FastifyAwilixOptions, fastifyAwilixPlugin } from '@fastify/awilix';
+import { HttpErrors } from '@fastify/sensible/lib/httpError';
 import { asClass, asFunction } from 'awilix';
 import { FastifyPluginAsync } from 'fastify';
 import { Twilio } from 'twilio';
@@ -6,7 +7,10 @@ import {
   ChallengeManager,
   DeviceManager,
   VerifyManager,
-} from '../../application/services';
+} from '../../application/managers';
+import { AuthService, UsersService } from '../../application/services';
+import { AuthController } from '../controllers/auth.controller';
+import { UsersController } from '../controllers/users.controller';
 
 declare module '@fastify/awilix' {
   interface Cradle {
@@ -14,6 +18,11 @@ declare module '@fastify/awilix' {
     challengeManager: ChallengeManager;
     deviceManager: DeviceManager;
     verifyManager: VerifyManager;
+    authController: AuthController;
+    authService: AuthService;
+    usersController: UsersController;
+    usersService: UsersService;
+    httpErrorsService: HttpErrors;
   }
   // interface RequestCradle {
   //   user: User;
@@ -47,6 +56,11 @@ export const awilixPlugin: FastifyPluginAsync = async (
         challengeManager: asClass(ChallengeManager).singleton(),
         deviceManager: asClass(DeviceManager).singleton(),
         verifyManager: asClass(VerifyManager).singleton(),
+        authController: asClass(AuthController).singleton(),
+        authService: asClass(AuthService).singleton(),
+        usersController: asClass(UsersController).singleton(),
+        usersService: asClass(UsersService).singleton(),
+        httpErrorsService: asFunction(() => fastify.httpErrors).singleton(),
       });
     });
 };

@@ -17,6 +17,8 @@ export const changePassword = {
   }),
 };
 
+export type ChangePasswordBody = Static<typeof changePassword.body>;
+
 export const userByUsernameSchema = {
   params: Type.Object({
     username: Type.String({
