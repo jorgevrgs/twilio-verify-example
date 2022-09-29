@@ -33,21 +33,61 @@ const app: FastifyPluginAsync<AppOptions> = async (
 
   fastify
     // Plugins
-    .register(fp(awilixPlugin))
-    .register(fp(corsPlugin))
-    .register(fp(helpersPlugin))
-    .register(fp(mongoPlugin))
-    .register(fp(sensiblePlugin))
+    .register(
+      fp(corsPlugin, {
+        name: 'corsPlugin',
+      })
+    )
+    .register(
+      fp(helpersPlugin, {
+        name: 'helpersPlugin',
+      })
+    )
+    .register(
+      fp(mongoPlugin, {
+        name: 'mongoPlugin',
+      })
+    )
+    .register(
+      fp(sensiblePlugin, {
+        name: 'sensiblePlugin',
+      })
+    )
     .register(fp(sessionPlugin))
-    .register(fp(twilioPlugin))
-    .register(fp(websocketPlugin))
+    .register(
+      fp(twilioPlugin, {
+        name: 'twilioPlugin',
+      })
+    )
+    .register(
+      fp(websocketPlugin, {
+        name: 'websocketPlugin',
+      })
+    )
+    .register(
+      fp(awilixPlugin, {
+        name: 'awilixPlugin',
+        dependencies: [
+          'mongoPlugin',
+          'twilioPlugin',
+          'sensiblePlugin',
+          'helpersPlugin',
+        ],
+        decorators: {
+          fastify: ['mongo', 'httpErrors'],
+        },
+      })
+    )
     // Routes
     .register(authRoute, { prefix: '/api/v1/auth' })
     .register(usersRoute, { prefix: '/api/v1/users' })
     .register(verificationRoute, { prefix: '/api/v1/verification' })
     .register(webhooksRoute, { prefix: '/api/v1/webhooks' })
     .ready((err) => {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        throw err;
+      }
       fastify.log.info(fastify.printPlugins());
       fastify.log.info(fastify.printRoutes());
     });

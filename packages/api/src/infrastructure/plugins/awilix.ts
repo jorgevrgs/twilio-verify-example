@@ -9,8 +9,10 @@ import {
   DeviceManager,
   VerifyManager,
 } from '../../application/managers';
+import { UserRepository } from '../../application/repositories';
 import {
   AuthService,
+  HelpersService,
   UsersService,
   VerificationService,
 } from '../../application/services';
@@ -27,10 +29,12 @@ declare module '@fastify/awilix' {
     challengeManager: ChallengeManager;
     dbClient: FastifyMongoObject['db'];
     deviceManager: DeviceManager;
+    helpersService: HelpersService;
     httpErrorsService: HttpErrors;
     twilioClient: Twilio;
     usersController: UsersController;
     usersService: UsersService;
+    userRepository: UserRepository;
     verificationController: VerificationController;
     verificationService: VerificationService;
     verifyManager: VerifyManager;
@@ -55,14 +59,16 @@ export const awilixPlugin: FastifyPluginAsync = async (
         opts
       )
     )
-    .ready(() => {
+    .ready((err) => {
+      if (err) throw err;
       fastify.diContainer.register({
         authController: asClass(AuthController).singleton(),
         authService: asClass(AuthService).singleton(),
         challengeManager: asClass(ChallengeManager).singleton(),
-        dbClient: asFunction(() => fastify.mongo.db).singleton(),
+        dbClient: asFunction(() => fastify.mongo.db),
         deviceManager: asClass(DeviceManager).singleton(),
-        httpErrorsService: asFunction(() => fastify.httpErrors).singleton(),
+        helpersService: asClass(HelpersService).singleton(),
+        httpErrorsService: asFunction(() => fastify.httpErrors),
         twilioClient: asFunction(
           () =>
             new Twilio(
@@ -72,6 +78,7 @@ export const awilixPlugin: FastifyPluginAsync = async (
         ).singleton(),
         usersController: asClass(UsersController).singleton(),
         usersService: asClass(UsersService).singleton(),
+        userRepository: asClass(UserRepository).singleton(),
         verificationController: asClass(VerificationController).singleton(),
         verificationService: asClass(VerificationService).singleton(),
         verifyManager: asClass(VerifyManager).singleton(),
