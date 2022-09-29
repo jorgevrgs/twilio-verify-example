@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import {
+  awilixPlugin,
   corsPlugin,
   helpersPlugin,
   mongoPlugin,
@@ -38,6 +39,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
 
   fastify
     // Plugins
+    .register(fp(awilixPlugin))
     .register(fp(corsPlugin))
     .register(fp(helpersPlugin))
     .register(fp(mongoPlugin))

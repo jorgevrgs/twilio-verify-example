@@ -1,3 +1,4 @@
+export * from './awilix';
 export * from './cors';
 export * from './helpers';
 export * from './mongo';
