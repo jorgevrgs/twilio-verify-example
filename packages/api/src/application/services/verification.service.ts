@@ -7,7 +7,7 @@ import { VerifyManager } from '../managers';
 
 export class VerificationService {
   constructor(
-    private readonly verificationManager: VerifyManager,
+    private readonly verifyManager: VerifyManager,
     private readonly usersService: UsersService,
     private readonly httpErrorsService: HttpErrors
   ) {}
@@ -24,7 +24,7 @@ export class VerificationService {
       );
     }
 
-    const createdVerification = await this.verificationManager.createCode(
+    const createdVerification = await this.verifyManager.createCode(
       user?.phoneNumber || (phoneNumber as string),
       user?.defaultChannel || (channel as ChannelOptions)
     );
@@ -38,7 +38,7 @@ export class VerificationService {
   ) {
     const user = await this.usersService.findUserByUsername(username);
 
-    const verificationCheckResult = await this.verificationManager.verifyCode(
+    const verificationCheckResult = await this.verifyManager.verifyCode(
       user?.phoneNumber || (phoneNumber as string),
       verificationCode
     );

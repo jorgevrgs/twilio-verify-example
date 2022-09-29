@@ -17,6 +17,7 @@ export class UserDto {
   'verification'?: CreateVerificationDto;
 
   constructor(data?: Partial<Document>) {
+    console.log('Input', data);
     Object.assign(
       this,
       omit(
@@ -27,5 +28,6 @@ export class UserDto {
         ['_id', 'password']
       )
     );
+    console.log('Output', this);
   }
 }

@@ -53,11 +53,25 @@ export class UsersService {
   }
 
   async findUserById(userId: string) {
-    return this.userRepository.findOne({ _id: new ObjectId(userId) });
+    const user = await this.userRepository.findOne({
+      _id: new ObjectId(userId),
+    });
+
+    if (!user) {
+      throw this.httpErrorsService.notFound('User not found');
+    }
+
+    return new UserDto(user);
   }
 
   async findUserByUsername(username: string) {
-    return this.userRepository.findOne({ username });
+    const user = await this.userRepository.findOne({ username });
+
+    if (!user) {
+      throw this.httpErrorsService.notFound('User not found');
+    }
+
+    return new UserDto(user);
   }
 
   async createUser(payload: CreateUserDto) {

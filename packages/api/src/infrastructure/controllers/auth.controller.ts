@@ -12,6 +12,9 @@ export class AuthController {
     reply: FastifyReply
   ) => {
     const user = await this.authService.login(request.body);
+
+    request.log.info({ authenticatedUser: user });
+
     request.session.user = user;
     request.session.verification = undefined;
 
@@ -19,8 +22,7 @@ export class AuthController {
   };
 
   logout = async (request: FastifyRequest, reply: FastifyReply) => {
-    request.session.user = undefined;
-    request.session.verification = undefined;
+    request.session.destroy();
 
     return this.authService.logout();
   };

@@ -1,4 +1,7 @@
-import { FastifyAwilixOptions, fastifyAwilixPlugin } from '@fastify/awilix';
+import {
+  FastifyAwilixOptions,
+  fastifyAwilixPlugin,
+} from '@fastify/awilix/lib/classic';
 import { FastifyMongoObject } from '@fastify/mongodb';
 import { HttpErrors } from '@fastify/sensible/lib/httpError';
 import { asClass, asFunction } from 'awilix';
@@ -48,40 +51,50 @@ export const awilixPlugin: FastifyPluginAsync = async (
   fastify,
   opts: FastifyAwilixOptions
 ) => {
-  fastify
-    .register(
-      fastifyAwilixPlugin,
-      Object.assign(
-        {
-          disposeOnClose: true,
-          disposeOnResponse: true,
-        },
-        opts
-      )
+  fastify.register(
+    fastifyAwilixPlugin,
+    Object.assign(
+      {
+        disposeOnClose: true,
+        disposeOnResponse: true,
+      },
+      opts
     )
-    .ready((err) => {
-      if (err) throw err;
-      fastify.diContainer.register({
-        authController: asClass(AuthController).singleton(),
-        authService: asClass(AuthService).singleton(),
-        challengeManager: asClass(ChallengeManager).singleton(),
-        dbClient: asFunction(() => fastify.mongo.db),
-        deviceManager: asClass(DeviceManager).singleton(),
-        helpersService: asClass(HelpersService).singleton(),
-        httpErrorsService: asFunction(() => fastify.httpErrors),
-        twilioClient: asFunction(
+  );
+
+  fastify.addHook('onRegister', (instance) => {
+    instance.diContainer
+      .register('authController', asClass(AuthController).singleton())
+      .register('authService', asClass(AuthService).singleton())
+      .register('challengeManager', asClass(ChallengeManager).singleton())
+      .register(
+        'dbClient',
+        asFunction(() => fastify.mongo.db)
+      )
+      .register('deviceManager', asClass(DeviceManager).singleton())
+      .register('helpersService', asClass(HelpersService).singleton())
+      .register(
+        'httpErrorsService',
+        asFunction(() => fastify.httpErrors)
+      )
+      .register(
+        'twilioClient',
+        asFunction(
           () =>
             new Twilio(
               process.env.TWILIO_ACCOUNT_SID,
               process.env.TWILIO_AUTH_TOKEN
             )
-        ).singleton(),
-        usersController: asClass(UsersController).singleton(),
-        usersService: asClass(UsersService).singleton(),
-        userRepository: asClass(UserRepository).singleton(),
-        verificationController: asClass(VerificationController).singleton(),
-        verificationService: asClass(VerificationService).singleton(),
-        verifyManager: asClass(VerifyManager).singleton(),
-      });
-    });
+        ).singleton()
+      )
+      .register('usersController', asClass(UsersController).singleton())
+      .register('usersService', asClass(UsersService).singleton())
+      .register('userRepository', asClass(UserRepository).singleton())
+      .register(
+        'verificationController',
+        asClass(VerificationController).singleton()
+      )
+      .register('verificationService', asClass(VerificationService).singleton())
+      .register('verifyManager', asClass(VerifyManager).singleton());
+  });
 };
