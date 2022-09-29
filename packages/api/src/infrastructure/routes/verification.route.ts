@@ -4,7 +4,7 @@ import {
   verifyCodeSchema,
 } from '../../domain/schemas';
 
-export const authRoute: FastifyPluginAsync = async (
+export const verificationRoute: FastifyPluginAsync = async (
   fastify,
   opts
 ): Promise<void> => {

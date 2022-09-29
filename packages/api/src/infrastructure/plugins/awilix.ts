@@ -1,4 +1,5 @@
 import { FastifyAwilixOptions, fastifyAwilixPlugin } from '@fastify/awilix';
+import { FastifyMongoObject } from '@fastify/mongodb';
 import { HttpErrors } from '@fastify/sensible/lib/httpError';
 import { asClass, asFunction } from 'awilix';
 import { FastifyPluginAsync } from 'fastify';
@@ -13,23 +14,26 @@ import {
   UsersService,
   VerificationService,
 } from '../../application/services';
-import { AuthController } from '../controllers/auth.controller';
-import { UsersController } from '../controllers/users.controller';
-import { VerificationController } from '../controllers/verification.controller';
+import {
+  AuthController,
+  UsersController,
+  VerificationController,
+} from '../controllers';
 
 declare module '@fastify/awilix' {
   interface Cradle {
-    twilioClient: Twilio;
-    challengeManager: ChallengeManager;
-    deviceManager: DeviceManager;
-    verifyManager: VerifyManager;
     authController: AuthController;
     authService: AuthService;
+    challengeManager: ChallengeManager;
+    dbClient: FastifyMongoObject['db'];
+    deviceManager: DeviceManager;
+    httpErrorsService: HttpErrors;
+    twilioClient: Twilio;
     usersController: UsersController;
     usersService: UsersService;
     verificationController: VerificationController;
     verificationService: VerificationService;
-    httpErrorsService: HttpErrors;
+    verifyManager: VerifyManager;
   }
   // interface RequestCradle {
   //   user: User;
@@ -53,6 +57,12 @@ export const awilixPlugin: FastifyPluginAsync = async (
     )
     .ready(() => {
       fastify.diContainer.register({
+        authController: asClass(AuthController).singleton(),
+        authService: asClass(AuthService).singleton(),
+        challengeManager: asClass(ChallengeManager).singleton(),
+        dbClient: asFunction(() => fastify.mongo.db).singleton(),
+        deviceManager: asClass(DeviceManager).singleton(),
+        httpErrorsService: asFunction(() => fastify.httpErrors).singleton(),
         twilioClient: asFunction(
           () =>
             new Twilio(
@@ -60,16 +70,11 @@ export const awilixPlugin: FastifyPluginAsync = async (
               process.env.TWILIO_AUTH_TOKEN
             )
         ).singleton(),
-        challengeManager: asClass(ChallengeManager).singleton(),
-        deviceManager: asClass(DeviceManager).singleton(),
-        verifyManager: asClass(VerifyManager).singleton(),
-        authController: asClass(AuthController).singleton(),
-        authService: asClass(AuthService).singleton(),
         usersController: asClass(UsersController).singleton(),
         usersService: asClass(UsersService).singleton(),
         verificationController: asClass(VerificationController).singleton(),
         verificationService: asClass(VerificationService).singleton(),
-        httpErrorsService: asFunction(() => fastify.httpErrors).singleton(),
+        verifyManager: asClass(VerifyManager).singleton(),
       });
     });
 };

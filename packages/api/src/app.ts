@@ -11,16 +11,10 @@ import {
   websocketPlugin,
 } from './infrastructure/plugins';
 import {
-  cancelVerifyRoute,
-  changePasswordRoute,
-  checkVerifyRoute,
-  createVerifyRoute,
-  loginRoute,
-  logoutRoute,
-  meRoute,
-  registerRoute,
-  usernameRoute,
-  webhookRoute,
+  authRoute,
+  usersRoute,
+  verificationRoute,
+  webhooksRoute,
 } from './infrastructure/routes';
 
 export type AppOptions = {
@@ -48,16 +42,10 @@ const app: FastifyPluginAsync<AppOptions> = async (
     .register(fp(twilioPlugin))
     .register(fp(websocketPlugin))
     // Routes
-    .register(loginRoute, { prefix: '/api/v1/auth' })
-    .register(logoutRoute, { prefix: '/api/v1/auth' })
-    .register(registerRoute, { prefix: '/api/v1/auth' })
-    .register(changePasswordRoute, { prefix: '/api/v1/users' })
-    .register(meRoute, { prefix: '/api/v1/users' })
-    .register(usernameRoute, { prefix: '/api/v1/users' })
-    .register(cancelVerifyRoute, { prefix: '/api/v1/verification' })
-    .register(createVerifyRoute, { prefix: '/api/v1/verification' })
-    .register(checkVerifyRoute, { prefix: '/api/v1/verification' })
-    .register(webhookRoute, { prefix: '/api/v1/webhooks' })
+    .register(authRoute, { prefix: '/api/v1/auth' })
+    .register(usersRoute, { prefix: '/api/v1/users' })
+    .register(verificationRoute, { prefix: '/api/v1/verification' })
+    .register(webhooksRoute, { prefix: '/api/v1/webhooks' })
     .ready((err) => {
       if (err) throw err;
       fastify.log.info(fastify.printPlugins());
