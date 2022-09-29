@@ -1,6 +1,6 @@
 import { ObjectId } from '@fastify/mongodb';
 import { HttpErrors } from '@fastify/sensible/lib/httpError';
-import { UserDto } from '../../domain/dtos';
+import { CreateUserDto, UserDto } from '../../domain/dtos';
 import { ChangePasswordBody } from '../../domain/schemas';
 import { UserRepository } from '../repositories/user.repository';
 import { HelpersService } from './helpers.service';
@@ -58,5 +58,16 @@ export class UsersService {
 
   async findUserByUsername(username: string) {
     return this.userRepository.findOne({ username });
+  }
+
+  async createUser(payload: CreateUserDto) {
+    const hashedPassword = await this.helpersService.hashPassword(
+      payload.password
+    );
+
+    return this.userRepository.insertOne({
+      ...payload,
+      password: hashedPassword,
+    });
   }
 }

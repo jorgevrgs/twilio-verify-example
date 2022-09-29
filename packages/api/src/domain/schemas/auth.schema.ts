@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Static, Type } from '@sinclair/typebox';
 import { ChannelOptions } from '../constants';
 
 export const registerSchema = {
@@ -13,9 +13,13 @@ export const registerSchema = {
   }),
 };
 
+export type RegisterBody = Static<typeof registerSchema.body>;
+
 export const loginSchema = {
   body: Type.Object({
     username: Type.String(),
     password: Type.String({ minLength: 6 }),
   }),
 };
+
+export type LoginBody = Static<typeof loginSchema.body>;

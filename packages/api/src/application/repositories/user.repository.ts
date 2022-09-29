@@ -14,4 +14,8 @@ export class UserRepository {
       ?.collection<UserSchemaDto>('users')
       .updateOne(query, update);
   }
+
+  insertOne(user: UserSchemaDto) {
+    return this.dbClient?.collection<UserSchemaDto>('users').insertOne(user);
+  }
 }
