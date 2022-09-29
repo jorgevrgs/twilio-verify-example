@@ -1,6 +1,6 @@
 import { ObjectId } from '@fastify/mongodb';
 import { FastifyPluginAsync } from 'fastify';
-import { UserDto } from '../../dtos';
+import { UserDto } from '../../../domain/dtos';
 
 export const meRoute: FastifyPluginAsync = async (
   fastify,

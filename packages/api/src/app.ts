@@ -9,7 +9,7 @@ import {
   sessionPlugin,
   twilioPlugin,
   websocketPlugin,
-} from './plugins';
+} from './infrastructure/plugins';
 import {
   cancelVerifyRoute,
   changePasswordRoute,
@@ -21,7 +21,7 @@ import {
   registerRoute,
   usernameRoute,
   webhookRoute,
-} from './routes';
+} from './infrastructure/routes';
 
 export type AppOptions = {
   prefix: string;

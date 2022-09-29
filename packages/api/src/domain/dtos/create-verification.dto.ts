@@ -1,9 +1,9 @@
 import pick from 'lodash.pick';
 import type { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
-import { channel } from '../schemas/auth.schema';
+import { ChannelOptions } from '../constants';
 
 export class CreateVerificationDto {
-  'channel': channel;
+  'channel': ChannelOptions;
   'sid': string;
   'status': string;
   'valid': boolean;

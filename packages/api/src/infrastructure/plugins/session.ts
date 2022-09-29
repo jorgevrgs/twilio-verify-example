@@ -2,7 +2,7 @@ import fastifyAuth from '@fastify/auth';
 import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
-import { CreateVerificationDto, UserDto } from '../dtos';
+import { CreateVerificationDto, UserDto } from '../../domain/dtos';
 declare global {
   namespace NodeJS {
     interface ProcessEnv {

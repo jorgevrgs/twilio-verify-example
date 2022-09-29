@@ -2,9 +2,11 @@ import { FastifyAwilixOptions, fastifyAwilixPlugin } from '@fastify/awilix';
 import { asClass, asFunction } from 'awilix';
 import { FastifyPluginAsync } from 'fastify';
 import { Twilio } from 'twilio';
-import { ChallengeManager } from '../services/challenge-manager';
-import { DeviceManager } from '../services/device-manager';
-import { VerifyManager } from '../services/verify-manager';
+import {
+  ChallengeManager,
+  DeviceManager,
+  VerifyManager,
+} from '../../application/services';
 
 declare module '@fastify/awilix' {
   interface Cradle {

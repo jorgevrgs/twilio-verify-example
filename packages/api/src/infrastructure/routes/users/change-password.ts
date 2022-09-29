@@ -1,6 +1,6 @@
 import { ObjectId } from '@fastify/mongodb';
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
-import { UserDto } from '../../dtos';
+import { UserDto } from '../../../domain/dtos';
 
 export const changePasswordRoute: FastifyPluginAsync = async (
   fastify,

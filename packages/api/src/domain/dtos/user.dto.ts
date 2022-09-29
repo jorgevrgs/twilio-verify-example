@@ -1,6 +1,6 @@
 import omit from 'lodash.omit';
 import type { Document } from 'mongodb';
-import { channel } from '../schemas/auth.schema';
+import { ChannelOptions } from '../constants';
 import { CreateFactor } from './create-factor';
 import { CreateVerificationDto } from './create-verification.dto';
 
@@ -8,7 +8,7 @@ import { CreateVerificationDto } from './create-verification.dto';
  * User information to be returned to the client
  */
 export class UserDto {
-  'defaultChannel': channel = channel.sms;
+  'defaultChannel': ChannelOptions = ChannelOptions.sms;
   'enableMFA': boolean;
   'factor'?: CreateFactor;
   'id': string;

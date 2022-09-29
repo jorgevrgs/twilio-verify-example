@@ -1,10 +1,10 @@
-import { channel } from '../schemas/auth.schema';
+import { ChannelOptions } from '../constants';
 
 /**
  * User information to be stored in the database
  */
 export class CreateUserDto {
-  'defaultChannel': channel = channel.sms;
+  'defaultChannel': ChannelOptions = ChannelOptions.sms;
   'enableMFA': boolean;
   'password': string;
   'phoneNumber': string;

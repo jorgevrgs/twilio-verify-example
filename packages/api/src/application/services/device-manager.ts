@@ -1,5 +1,5 @@
 import { Twilio } from 'twilio';
-import type { UserDto } from '../dtos';
+import type { UserDto } from '../../domain/dtos';
 
 export class DeviceManager {
   constructor(private readonly twilioClient: Twilio) {}

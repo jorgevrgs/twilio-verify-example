@@ -1,9 +1,5 @@
 import { Type } from '@sinclair/typebox';
-
-export enum channel {
-  sms = 'sms',
-  call = 'call',
-}
+import { ChannelOptions } from '../constants';
 
 export const registerSchema = {
   body: Type.Object({
@@ -11,7 +7,9 @@ export const registerSchema = {
     password: Type.String({ minLength: 6 }),
     phoneNumber: Type.String({ minLength: 10 }),
     enableMFA: Type.Boolean({ default: true }),
-    channel: Type.Optional(Type.Enum(channel, { default: channel.sms })),
+    channel: Type.Optional(
+      Type.Enum(ChannelOptions, { default: ChannelOptions.sms })
+    ),
   }),
 };
 

@@ -1,7 +1,7 @@
 import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import pick from 'lodash.pick';
-import { UserDto } from '../../dtos';
-import { userByUsernameSchema, UsernameParams } from '../../schemas';
+import { UserDto } from '../../../domain/dtos';
+import { userByUsernameSchema, UsernameParams } from '../../../domain/schemas';
 
 export const usernameRoute: FastifyPluginAsync = async (
   fastify,

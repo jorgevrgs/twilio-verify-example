@@ -1,11 +1,11 @@
 import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import type { VerificationListInstanceCreateOptions } from 'twilio/lib/rest/verify/v2/service/verification';
-import { CreateVerificationDto } from '../../dtos';
+import { CreateVerificationDto } from '../../../domain/dtos';
 import {
   CreateVerificationBody,
   CreateVerificationParams,
   createVerificationSchema,
-} from '../../schemas';
+} from '../../../domain/schemas';
 
 export const createVerifyRoute: FastifyPluginAsync = async (
   fastify,

@@ -1,7 +1,7 @@
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { FastifyPluginAsync } from 'fastify';
-import { UserDto } from '../../dtos';
-import { loginSchema } from '../../schemas/auth.schema';
+import { UserDto } from '../../../domain/dtos';
+import { loginSchema } from '../../../domain/schemas';
 
 export const loginRoute: FastifyPluginAsync = async (
   fastify,

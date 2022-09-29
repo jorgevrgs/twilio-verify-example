@@ -4,7 +4,7 @@ import type {
   ChallengeListInstanceCreateOptions,
 } from 'twilio/lib/rest/verify/v2/service/entity/challenge';
 import type { WebSocket } from 'ws';
-import type { UserDto } from '../dtos';
+import type { UserDto } from '../../domain/dtos';
 
 export class ChallengeManager {
   private challenges: Map<
