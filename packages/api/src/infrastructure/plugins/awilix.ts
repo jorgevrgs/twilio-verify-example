@@ -8,9 +8,14 @@ import {
   DeviceManager,
   VerifyManager,
 } from '../../application/managers';
-import { AuthService, UsersService } from '../../application/services';
+import {
+  AuthService,
+  UsersService,
+  VerificationService,
+} from '../../application/services';
 import { AuthController } from '../controllers/auth.controller';
 import { UsersController } from '../controllers/users.controller';
+import { VerificationController } from '../controllers/verification.controller';
 
 declare module '@fastify/awilix' {
   interface Cradle {
@@ -22,6 +27,8 @@ declare module '@fastify/awilix' {
     authService: AuthService;
     usersController: UsersController;
     usersService: UsersService;
+    verificationController: VerificationController;
+    verificationService: VerificationService;
     httpErrorsService: HttpErrors;
   }
   // interface RequestCradle {
@@ -60,6 +67,8 @@ export const awilixPlugin: FastifyPluginAsync = async (
         authService: asClass(AuthService).singleton(),
         usersController: asClass(UsersController).singleton(),
         usersService: asClass(UsersService).singleton(),
+        verificationController: asClass(VerificationController).singleton(),
+        verificationService: asClass(VerificationService).singleton(),
         httpErrorsService: asFunction(() => fastify.httpErrors).singleton(),
       });
     });

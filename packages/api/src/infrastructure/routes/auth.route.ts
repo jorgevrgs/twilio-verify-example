@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { loginSchema, registerSchema } from '../../domain/schemas';
 
-export const loginRoute: FastifyPluginAsync = async (
+export const authRoute: FastifyPluginAsync = async (
   fastify,
   opts
 ): Promise<void> => {

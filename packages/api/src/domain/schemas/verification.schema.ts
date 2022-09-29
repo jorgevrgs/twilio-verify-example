@@ -50,6 +50,6 @@ export type CreateVerificationBody = Static<
   typeof createVerificationSchema.body
 >;
 
-export type VerificationCodeParams = Static<typeof verifyCodeSchema.params>;
+export type VerifyCodeParams = Static<typeof verifyCodeSchema.params>;
 
 export type VerifyCodeBody = Static<typeof verifyCodeSchema.body>;

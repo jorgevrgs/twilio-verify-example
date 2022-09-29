@@ -2,8 +2,8 @@ import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { VerificationCheckListInstanceCreateOptions } from 'twilio/lib/rest/verify/v2/service/verificationCheck';
 import { CreateVerificationDto } from '../../../domain/dtos';
 import {
-  VerificationCodeParams,
   VerifyCodeBody,
+  VerifyCodeParams,
   verifyCodeSchema,
 } from '../../../domain/schemas';
 
@@ -18,7 +18,7 @@ export const checkVerifyRoute: FastifyPluginAsync = async (
     schema: verifyCodeSchema,
     handler: async function (
       request: FastifyRequest<{
-        Params: VerificationCodeParams;
+        Params: VerifyCodeParams;
         Body: VerifyCodeBody;
       }>,
       reply: FastifyReply
